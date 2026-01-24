@@ -5,77 +5,145 @@ import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
-function Login()
-{
-    const [showPassword, setShowPassword] = useState(false);
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const navigate = useNavigate();
+function Login() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [identifier, setIdentifier] = useState(""); // username OR email
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    //Validation Condition
-    const isFormValid = email.trim() !== "" && password.length >= 6;
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        document.title = "Login • CodeGram"
-    }, []);
+  const isFormValid = identifier.trim() !== "" && password.length >= 6;
 
-    return(
-        <div className="login-wrapper">
+  useEffect(() => {
+    document.title = "Login • CodeGram";
+  }, []);
 
-            { /* Left Section*/ }
-            <div className="login-left">
-                <div className="brand-header">
-                    <img src={brandLogo} alt="Brand Logo" className="brand-icon"/>
-                    <h1 className="brand-logo">
-                        <span className="brand-gradient">CodeGram</span>
-                    </h1>
-                </div>
+  const handleLogin = async () => {
+    if (!isFormValid) return;
 
-                <p className="brand-text">Share and Explore Coding with 
-                    <br />
-                    your <span className="brand-highlight">Close Friends</span>
-                </p>
+    setLoading(true);
 
-                <div className="editor-preview">
-                    <img src={editorPreview} alt="VS Code Preview"/>
-                </div>
-            </div>
-            <div className="section-divider"></div>
-            {/* Right Section */}
-            <div className="login-right">
-                <div className="login-box">
-                    <h2>Log into CodeGram</h2>
+    let loginEmail = identifier;
 
-                    <div className="input-group">
-                        <input type="text" id="email" required value={email} onChange={(e) => setEmail(e.target.value)}/>
-                        <label htmlFor="email">Username or Email</label>
-                    </div>
+    // If input does NOT look like an email, treat as username
+    if (!identifier.includes("@")) {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("email")
+        .eq("username", identifier)
+        .single();
 
-                    <div className="input-group password-group">
-                        <input type={showPassword ? "text" : "password"} id="password" required value={password} onChange={(e) => setPassword(e.target.value)}/>
-                        <label htmlFor="password">Password</label>
-                        <button type="button" className="eye-button" onClick={() => setShowPassword(!showPassword)}>
-                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                        </button>
-                    </div>
+      if (error || !data) {
+        alert("Username not found");
+        setLoading(false);
+        return;
+      }
 
-                    <button className="login-button" disabled={!isFormValid}>
-                        Log In
-                    </button>
+      loginEmail = data.email;
+    }
 
-                    <div className="divider"></div>
+    const { error: authError } =
+      await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password,
+      });
 
-                    <button className="create-account" onClick={() => navigate("/signup")}>Create New Account</button>
+    if (authError) {
+      alert("Invalid credentials");
+      setLoading(false);
+      return;
+    }
 
-                    <div className="footer-brand">
-                        <img src={brandLogo} alt="Brand Logo" className="footer-brand-icon"/>
-                        <span className="footer-logo">RSJ</span>
-                    </div>
-                </div>
-            </div>
+    setLoading(false);
+    navigate("/feed");
+  };
+
+  return (
+    <div className="login-wrapper">
+
+      {/* Left Section */}
+      <div className="login-left">
+        <div className="brand-header">
+          <img src={brandLogo} alt="Brand Logo" className="brand-icon" />
+          <h1 className="brand-logo">
+            <span className="brand-gradient">CodeGram</span>
+          </h1>
         </div>
-    )
+
+        <p className="brand-text">
+          Share and Explore Coding with
+          <br />
+          your <span className="brand-highlight">Close Friends</span>
+        </p>
+
+        <div className="editor-preview">
+          <img src={editorPreview} alt="VS Code Preview" />
+        </div>
+      </div>
+
+      <div className="section-divider"></div>
+
+      {/* Right Section */}
+      <div className="login-right">
+        <div className="login-box">
+          <h2>Log into CodeGram</h2>
+
+          <div className="input-group">
+            <input
+              type="text"
+              required
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+            />
+            <label>Username or Email</label>
+          </div>
+
+          <div className="input-group password-group">
+            <input
+              type={showPassword ? "text" : "password"}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <label>Password</label>
+
+            <button
+              type="button"
+              className="eye-button"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+            </button>
+          </div>
+
+          <button
+            className="login-button"
+            onClick={handleLogin}
+            disabled={!isFormValid || loading}
+          >
+            {loading ? "Logging In..." : "Log In"}
+          </button>
+
+          <div className="divider"></div>
+
+          <button
+            className="create-account"
+            onClick={() => navigate("/signup")}
+          >
+            Create New Account
+          </button>
+
+          <div className="footer-brand">
+            <img src={brandLogo} alt="Brand Logo" className="footer-brand-icon" />
+            <span className="footer-logo">RSJ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default Login;
