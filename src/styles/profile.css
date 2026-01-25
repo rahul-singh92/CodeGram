@@ -414,3 +414,50 @@
   height: 24px;
   font-size: 26px;
 }
+
+/* MORE MENU OVERLAY (click outside) */
+.more-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 999;
+}
+
+/* MORE MENU POPUP */
+.more-menu {
+  position: fixed;
+  bottom: 70px;
+  left: 80px; /* aligns with sidebar */
+  width: 220px;
+  background-color: rgb(33, 35, 40);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+/* MENU ITEM */
+.more-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: white;
+}
+
+.more-menu-item:hover {
+  background-color: rgb(40, 45, 50);
+}
+
+/* LOGOUT */
+.more-menu-item.logout {
+  color: #ef4444;
+}
+
+/* DIVIDER */
+.more-menu-divider {
+  height: 1px;
+  background-color: rgb(55, 60, 65);
+}

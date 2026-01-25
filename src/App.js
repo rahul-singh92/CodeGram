@@ -1,6 +1,7 @@
 import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import { supabase } from "./lib/supabase";
 import { useEffect } from "react";
 
@@ -52,6 +53,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           }
         />

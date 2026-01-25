@@ -37,6 +37,7 @@ function Profile() {
     const [avatarLoading, setAvatarLoading] = useState(false);
     const [showAccountInfo, setShowAccountInfo] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [showMoreMenu, setShowMoreMenu] = useState(false);
     const hasProfilePhoto = !!avatarUrl;
     const navigate = useNavigate();
 
@@ -144,11 +145,6 @@ function Profile() {
         fetchProfile();
     }, [navigate]);
 
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
-        navigate("/");
-    };
-
     if (loading || !profile) {
         return null;
     }
@@ -225,10 +221,15 @@ function Profile() {
 
                 {/* BOTTOM */}
                 <div className="sidebar-bottom">
-                    <div className="menu-item">
+                    <div
+                        className="menu-item"
+                        onClick={() => setShowMoreMenu((prev) => !prev)}
+                        style={{ cursor: "pointer" }}
+                    >
                         <FontAwesomeIcon icon={faBars} />
                         <span>More</span>
                     </div>
+
                 </div>
 
             </aside>
@@ -457,7 +458,13 @@ function Profile() {
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* SETTINGS */}
-                            <div className="modal-item action">
+                            <div 
+                                className="modal-item action"
+                                onClick={() => {
+                                    setShowSettingsModal(false);
+                                    navigate("/settings");
+                                }}
+                            >
                                 Settings and Privacy
                             </div>
 
@@ -487,6 +494,42 @@ function Profile() {
                     </div>
                 )}
 
+                {showMoreMenu && (
+                    <>
+                        {/* CLICK OUTSIDE OVERLAY */}
+                        <div
+                            className="more-menu-overlay"
+                            onClick={() => setShowMoreMenu(false)}
+                        />
+
+                        {/* POPUP MENU */}
+                        <div className="more-menu">
+                            <div
+                                className="more-menu-item"
+                                onClick={() => {
+                                    setShowMoreMenu(false);
+                                    navigate("/settings")
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faGear} />
+                                <span>Settings</span>
+                            </div>
+
+                            <div className="more-menu-divider"></div>
+
+                            <div
+                                className="more-menu-item logout"
+                                onClick={async () => {
+                                    await supabase.auth.signOut();
+                                    navigate("/");
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faBars} />
+                                <span>Log out</span>
+                            </div>
+                        </div>
+                    </>
+                )}
 
                 <input
                     type="file"
