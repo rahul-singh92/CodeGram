@@ -36,6 +36,7 @@ function Profile() {
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [avatarLoading, setAvatarLoading] = useState(false);
     const [showAccountInfo, setShowAccountInfo] = useState(false);
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
     const hasProfilePhoto = !!avatarUrl;
     const navigate = useNavigate();
 
@@ -203,10 +204,23 @@ function Profile() {
                         <span>Create</span>
                     </div>
 
-                    <div className="menu-item">
-                        <FontAwesomeIcon icon={faUser} />
+                    <div
+                        className="menu-item"
+                        onClick={() => navigate("/profile")}
+                        style={{ cursor: "pointer" }}
+                    >
+                        {avatarUrl ? (
+                            <img
+                                src={avatarUrl}
+                                alt="Profile"
+                                className="sidebar-avatar"
+                            />
+                        ) : (
+                            <FontAwesomeIcon icon={faUser} />
+                        )}
                         <span>Profile</span>
                     </div>
+
                 </div>
 
                 {/* BOTTOM */}
@@ -261,9 +275,13 @@ function Profile() {
                             <button className="profile-btn">Edit Profile</button>
                             <button className="profile-btn secondary">View Archive</button>
 
-                            <button className="icon-btn">
+                            <button
+                                className="icon-btn"
+                                onClick={() => setShowSettingsModal(true)}
+                            >
                                 <FontAwesomeIcon icon={faGear} />
                             </button>
+
                         </div>
 
                         {/* STATS ROW */}
@@ -424,6 +442,46 @@ function Profile() {
                                 onClick={() => setShowAccountInfo(false)}
                             >
                                 Close
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {showSettingsModal && (
+                    <div
+                        className="modal-overlay"
+                        onClick={() => setShowSettingsModal(false)}
+                    >
+                        <div
+                            className="photo-modal"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* SETTINGS */}
+                            <div className="modal-item action">
+                                Settings and Privacy
+                            </div>
+
+                            <div className="modal-divider"></div>
+
+                            {/* LOG OUT */}
+                            <div
+                                className="modal-item action remove"
+                                onClick={async () => {
+                                    await supabase.auth.signOut();
+                                    navigate("/");
+                                }}
+                            >
+                                Log out
+                            </div>
+
+                            <div className="modal-divider"></div>
+
+                            {/* CANCEL */}
+                            <div
+                                className="modal-item cancel"
+                                onClick={() => setShowSettingsModal(false)}
+                            >
+                                Cancel
                             </div>
                         </div>
                     </div>
