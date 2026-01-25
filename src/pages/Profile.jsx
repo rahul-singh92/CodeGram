@@ -21,7 +21,9 @@ import {
     faMessage,
     faSquarePlus,
     faBars,
-    faGear
+    faGear,
+    faCalendar,
+    faLocationDot
 } from "@fortawesome/free-solid-svg-icons";
 
 import brandLogo from "../assets/brand logo.svg";
@@ -33,6 +35,7 @@ function Profile() {
     const [showPhotoModal, setShowPhotoModal] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [avatarLoading, setAvatarLoading] = useState(false);
+    const [showAccountInfo, setShowAccountInfo] = useState(false);
     const hasProfilePhoto = !!avatarUrl;
     const navigate = useNavigate();
 
@@ -93,6 +96,15 @@ function Profile() {
         const parts = cleanUrl.split("/avatars/");
         return parts[1]; // e.g. "<uuid>.jpg"
     };
+
+    const formatMonthYear = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+};
+
 
     useEffect(() => {
         document.title = "CodeGram • Profile";
@@ -232,7 +244,13 @@ function Profile() {
 
                         {/* TOP ROW */}
                         <div className="profile-top-row">
-                            <h2 className="profile-username">{profile.username}</h2>
+                            <h2
+                                className="profile-username clickable"
+                                onClick={() => setShowAccountInfo(true)}
+                            >
+                                {profile.username}
+                            </h2>
+
 
                             <button className="profile-btn">Edit Profile</button>
                             <button className="profile-btn secondary">View Archive</button>
@@ -330,6 +348,78 @@ function Profile() {
                         </div>
                     </div>
                 )}
+
+                {showAccountInfo && (
+  <div
+    className="modal-overlay"
+    onClick={() => setShowAccountInfo(false)}
+  >
+    <div
+      className="photo-modal account-modal"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* HEADER */}
+      <div className="modal-item header">
+        About your account
+      </div>
+
+      <div className="modal-divider"></div>
+
+      {/* PROFILE */}
+      <div className="account-profile">
+        <div className="account-avatar">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="Avatar" />
+          ) : (
+            <FontAwesomeIcon icon={faUserCircle} />
+          )}
+        </div>
+
+        <div className="account-username">
+          {profile.username}
+        </div>
+      </div>
+
+      {/* DESCRIPTION */}
+      <div className="account-desc">
+        To help keep our community authentic, we're showing information about
+        accounts on CodeGram. People can see this by tapping on the ••• on your
+        profile and choosing About this account.
+      </div>
+
+      {/* DATE JOINED */}
+      <div className="account-row">
+        <FontAwesomeIcon icon={faCalendar} />
+        <div>
+          <div className="account-title">Date Joined</div>
+          <div className="account-sub">
+            {formatMonthYear(profile.created_at)}
+          </div>
+        </div>
+      </div>
+
+      {/* LOCATION */}
+      <div className="account-row">
+        <FontAwesomeIcon icon={faLocationDot} />
+        <div>
+          <div className="account-title">Account based in</div>
+          <div className="account-sub">India</div>
+        </div>
+      </div>
+
+      <div className="modal-divider"></div>
+
+      {/* CLOSE */}
+      <div
+        className="modal-item cancel"
+        onClick={() => setShowAccountInfo(false)}
+      >
+        Close
+      </div>
+    </div>
+  </div>
+)}
+
 
                 <input
                     type="file"
