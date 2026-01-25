@@ -63,8 +63,16 @@
 }
 
 .brand-highlight {
-  color: #38bdf8;
   font-weight: 600;
+  background: linear-gradient(
+    90deg,
+    #38bdf8,   
+    #a855f7,   
+    #22c55e    
+  );
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .editor-preview {
