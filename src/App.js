@@ -4,6 +4,7 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import { supabase } from "./lib/supabase";
 import { useEffect } from "react";
+import { UserProvider } from "./context/UserContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -26,6 +27,7 @@ function App() {
 
   return (
     <BrowserRouter>
+    <UserProvider>
       <Routes>
 
         {/* Public Routes */}
@@ -67,6 +69,7 @@ function App() {
         />
 
       </Routes>
+      </UserProvider>
     </BrowserRouter>
   );
 }

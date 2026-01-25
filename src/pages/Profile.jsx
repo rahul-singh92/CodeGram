@@ -3,30 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import imageCompression from "browser-image-compression";
+import Sidebar from "../components/Sidebar";
 
 
 /* REGULAR / OUTLINE ICONS */
 import {
-    faHouse,
-    faImage,
-    faBell,
-    faUser,
-    faCompass,
     faUserCircle
 } from "@fortawesome/free-regular-svg-icons";
 
 /* SOLID ICONS (no regular version exists) */
 import {
-    faMagnifyingGlass,
-    faMessage,
-    faSquarePlus,
-    faBars,
     faGear,
     faCalendar,
     faLocationDot
 } from "@fortawesome/free-solid-svg-icons";
 
-import brandLogo from "../assets/brand logo.svg";
 import "../styles/profile.css";
 
 function Profile() {
@@ -37,7 +28,6 @@ function Profile() {
     const [avatarLoading, setAvatarLoading] = useState(false);
     const [showAccountInfo, setShowAccountInfo] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
-    const [showMoreMenu, setShowMoreMenu] = useState(false);
     const hasProfilePhoto = !!avatarUrl;
     const navigate = useNavigate();
 
@@ -153,86 +143,8 @@ function Profile() {
     return (
         <div className="profile-page">
 
-            {/* SIDEBAR */}
-            <aside className="sidebar">
+            <Sidebar />
 
-                {/* TOP LOGO */}
-                <div className="sidebar-top">
-                    <div className="menu-item logo">
-                        <img src={brandLogo} alt="CodeGram Logo" className="brand-icon" />
-                    </div>
-                </div>
-
-                {/* MIDDLE NAV */}
-                <div className="sidebar-middle">
-                    <div className="menu-item">
-                        <FontAwesomeIcon icon={faHouse} />
-                        <span>Home</span>
-                    </div>
-
-                    <div className="menu-item">
-                        <FontAwesomeIcon icon={faImage} />
-                        <span>Posts</span>
-                    </div>
-
-                    <div className="menu-item">
-                        <FontAwesomeIcon icon={faMessage} />
-                        <span>Messages</span>
-                    </div>
-
-                    <div className="menu-item">
-                        <FontAwesomeIcon icon={faMagnifyingGlass} />
-                        <span>Search</span>
-                    </div>
-
-                    <div className="menu-item">
-                        <FontAwesomeIcon icon={faCompass} />
-                        <span>Explore</span>
-                    </div>
-
-                    <div className="menu-item">
-                        <FontAwesomeIcon icon={faBell} />
-                        <span>Notifications</span>
-                    </div>
-
-                    <div className="menu-item">
-                        <FontAwesomeIcon icon={faSquarePlus} />
-                        <span>Create</span>
-                    </div>
-
-                    <div
-                        className="menu-item"
-                        onClick={() => navigate("/profile")}
-                        style={{ cursor: "pointer" }}
-                    >
-                        {avatarUrl ? (
-                            <img
-                                src={avatarUrl}
-                                alt="Profile"
-                                className="sidebar-avatar"
-                            />
-                        ) : (
-                            <FontAwesomeIcon icon={faUser} />
-                        )}
-                        <span>Profile</span>
-                    </div>
-
-                </div>
-
-                {/* BOTTOM */}
-                <div className="sidebar-bottom">
-                    <div
-                        className="menu-item"
-                        onClick={() => setShowMoreMenu((prev) => !prev)}
-                        style={{ cursor: "pointer" }}
-                    >
-                        <FontAwesomeIcon icon={faBars} />
-                        <span>More</span>
-                    </div>
-
-                </div>
-
-            </aside>
 
             {/* MAIN CONTENT */}
             <main className="profile-content">
@@ -458,7 +370,7 @@ function Profile() {
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* SETTINGS */}
-                            <div 
+                            <div
                                 className="modal-item action"
                                 onClick={() => {
                                     setShowSettingsModal(false);
@@ -492,43 +404,6 @@ function Profile() {
                             </div>
                         </div>
                     </div>
-                )}
-
-                {showMoreMenu && (
-                    <>
-                        {/* CLICK OUTSIDE OVERLAY */}
-                        <div
-                            className="more-menu-overlay"
-                            onClick={() => setShowMoreMenu(false)}
-                        />
-
-                        {/* POPUP MENU */}
-                        <div className="more-menu">
-                            <div
-                                className="more-menu-item"
-                                onClick={() => {
-                                    setShowMoreMenu(false);
-                                    navigate("/settings")
-                                }}
-                            >
-                                <FontAwesomeIcon icon={faGear} />
-                                <span>Settings</span>
-                            </div>
-
-                            <div className="more-menu-divider"></div>
-
-                            <div
-                                className="more-menu-item logout"
-                                onClick={async () => {
-                                    await supabase.auth.signOut();
-                                    navigate("/");
-                                }}
-                            >
-                                <FontAwesomeIcon icon={faBars} />
-                                <span>Log out</span>
-                            </div>
-                        </div>
-                    </>
                 )}
 
                 <input

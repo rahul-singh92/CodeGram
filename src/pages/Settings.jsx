@@ -1,26 +1,35 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "../styles/settings.css";
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
+import Sidebar from "../components/Sidebar";
 
 function Settings() {
-  const navigate = useNavigate();
+  const [avatarUrl, setAvatarUrl] = useState(null);
 
   useEffect(() => {
-    document.title = "CodeGram • Settings";
+    const loadProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", user.id)
+        .single();
+
+      setAvatarUrl(data?.avatar_url || null);
+    };
+
+    loadProfile();
   }, []);
 
   return (
-    <div className="settings-page">
-      <button className="back-button" onClick={() => navigate(-1)}>
-        ←
-      </button>
+    <div className="profile-page">
+      <Sidebar avatarUrl={avatarUrl} />
 
-      <h1>Settings & Privacy</h1>
-
-      <p>
-        This is the settings page.  
-        More options like privacy, security, account info will come here.
-      </p>
+      <main className="profile-content">
+        <h1>Settings & Privacy</h1>
+        <p>Random text for now…</p>
+      </main>
     </div>
   );
 }
