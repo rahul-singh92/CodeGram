@@ -14,10 +14,24 @@ function Signup() {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [loading, setLoading] = useState(false);
+  const [country, setCountry] = useState("");
 
   useEffect(() => {
-    document.title = "CodeGram • Sign Up";
-  }, []);
+  document.title = "CodeGram • Sign Up";
+
+  const detectCountry = async () => {
+    try {
+      const res = await fetch("https://ipapi.co/json/");
+      const data = await res.json();
+      setCountry(data.country_name);
+    } catch (err) {
+      console.warn("Could not detect country");
+    }
+  };
+
+  detectCountry();
+}, []);
+
 
   const handleSignup = async () => {
     if (
@@ -59,6 +73,7 @@ function Signup() {
       username,
       full_name: fullName,
       date_of_birth: dob,
+      country,
     });
 
     if (profileError) {
