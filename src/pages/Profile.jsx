@@ -1,0 +1,349 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import imageCompression from "browser-image-compression";
+
+
+/* REGULAR / OUTLINE ICONS */
+import {
+    faHouse,
+    faImage,
+    faBell,
+    faUser,
+    faCompass,
+    faUserCircle
+} from "@fortawesome/free-regular-svg-icons";
+
+/* SOLID ICONS (no regular version exists) */
+import {
+    faMagnifyingGlass,
+    faMessage,
+    faSquarePlus,
+    faBars,
+    faGear
+} from "@fortawesome/free-solid-svg-icons";
+
+import brandLogo from "../assets/brand logo.svg";
+import "../styles/profile.css";
+
+function Profile() {
+    const [profile, setProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [showPhotoModal, setShowPhotoModal] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState(null);
+    const [avatarLoading, setAvatarLoading] = useState(false);
+    const hasProfilePhoto = !!avatarUrl;
+    const navigate = useNavigate();
+
+    const handleAvatarUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            setAvatarLoading(true);
+            setShowPhotoModal(false);
+
+            const compressedFile = await imageCompression(file, {
+                maxSizeMB: 0.3,          // ~300KB
+                maxWidthOrHeight: 512,
+                useWebWorker: true,
+            });
+
+            const fileExt = compressedFile.name.split(".").pop();
+            const filePath = `${profile.id}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from("avatars")
+                .upload(filePath, compressedFile, {
+                    upsert: true,
+                    contentType: compressedFile.type,
+                });
+
+            if (uploadError) throw uploadError;
+
+            const {
+                data: { publicUrl },
+            } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+            const finalUrl = `${publicUrl}?t=${Date.now()}`;
+
+            await supabase
+                .from("profiles")
+                .update({ avatar_url: publicUrl })
+                .eq("id", profile.id);
+
+            setAvatarUrl(finalUrl);
+            setShowPhotoModal(false);
+        } catch (err) {
+            alert("Failed to upload image");
+            console.error(err);
+        } finally {
+            setAvatarLoading(false);
+        }
+    };
+
+    const getAvatarFilePath = (url) => {
+        if (!url) return null;
+
+        // Remove cache-busting query (?t=...)
+        const cleanUrl = url.split("?")[0];
+
+        // Extract path after /avatars/
+        const parts = cleanUrl.split("/avatars/");
+        return parts[1]; // e.g. "<uuid>.jpg"
+    };
+
+    useEffect(() => {
+        document.title = "CodeGram • Profile";
+
+        const fetchProfile = async () => {
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
+
+            if (!user) {
+                navigate("/");
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", user.id)
+                .single();
+
+            if (error) {
+                console.error(error);
+            } else {
+                setProfile(data);
+                setAvatarUrl(data.avatar_url);
+            }
+
+            setLoading(false);
+        };
+
+        fetchProfile();
+    }, [navigate]);
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        navigate("/");
+    };
+
+    if (loading) {
+        return <div className="profile-loading">Loading...</div>;
+    }
+
+    return (
+        <div className="profile-page">
+
+            {/* SIDEBAR */}
+            <aside className="sidebar">
+
+                {/* TOP LOGO */}
+                <div className="sidebar-top">
+                    <div className="menu-item logo">
+                        <img src={brandLogo} alt="CodeGram Logo" className="brand-icon" />
+                    </div>
+                </div>
+
+                {/* MIDDLE NAV */}
+                <div className="sidebar-middle">
+                    <div className="menu-item">
+                        <FontAwesomeIcon icon={faHouse} />
+                        <span>Home</span>
+                    </div>
+
+                    <div className="menu-item">
+                        <FontAwesomeIcon icon={faImage} />
+                        <span>Posts</span>
+                    </div>
+
+                    <div className="menu-item">
+                        <FontAwesomeIcon icon={faMessage} />
+                        <span>Messages</span>
+                    </div>
+
+                    <div className="menu-item">
+                        <FontAwesomeIcon icon={faMagnifyingGlass} />
+                        <span>Search</span>
+                    </div>
+
+                    <div className="menu-item">
+                        <FontAwesomeIcon icon={faCompass} />
+                        <span>Explore</span>
+                    </div>
+
+                    <div className="menu-item">
+                        <FontAwesomeIcon icon={faBell} />
+                        <span>Notifications</span>
+                    </div>
+
+                    <div className="menu-item">
+                        <FontAwesomeIcon icon={faSquarePlus} />
+                        <span>Create</span>
+                    </div>
+
+                    <div className="menu-item">
+                        <FontAwesomeIcon icon={faUser} />
+                        <span>Profile</span>
+                    </div>
+                </div>
+
+                {/* BOTTOM */}
+                <div className="sidebar-bottom">
+                    <div className="menu-item">
+                        <FontAwesomeIcon icon={faBars} />
+                        <span>More</span>
+                    </div>
+                </div>
+
+            </aside>
+
+            {/* MAIN CONTENT */}
+            <main className="profile-content">
+
+                {/* PROFILE HEADER */}
+                <div className="profile-header">
+
+                    {/* PROFILE IMAGE */}
+                    <div
+                        className={`profile-avatar clickable ${avatarLoading ? "loading" : ""}`}
+                        onClick={() => !avatarLoading && setShowPhotoModal(true)}
+                    >
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt="Avatar" className="avatar-img" />
+                        ) : (
+                            <FontAwesomeIcon icon={faUserCircle} />
+                        )}
+
+                        {avatarLoading && (
+                            <div className="avatar-spinner">
+                                <div className="spinner"></div>
+                            </div>
+                        )}
+                    </div>
+
+
+
+                    {/* PROFILE INFO */}
+                    <div className="profile-info">
+
+                        {/* TOP ROW */}
+                        <div className="profile-top-row">
+                            <h2 className="profile-username">{profile.username}</h2>
+
+                            <button className="profile-btn">Edit Profile</button>
+                            <button className="profile-btn secondary">View Archive</button>
+
+                            <button className="icon-btn">
+                                <FontAwesomeIcon icon={faGear} />
+                            </button>
+                        </div>
+
+                        {/* STATS ROW */}
+                        <div className="profile-stats">
+                            <span><strong>0</strong> posts</span>
+                            <span><strong>0</strong> followers</span>
+                            <span><strong>0</strong> following</span>
+                        </div>
+
+                        {/* NAME */}
+                        <div className="profile-name">
+                            {profile.full_name}
+                        </div>
+
+                    </div>
+                </div>
+
+                {showPhotoModal && (
+                    <div
+                        className="modal-overlay"
+                        onClick={() => setShowPhotoModal(false)}
+                    >
+                        <div
+                            className="photo-modal"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="modal-item header">
+                                Change Profile Photo
+                            </div>
+
+                            <div className="modal-divider"></div>
+
+                            <div
+                                className="modal-item action upload"
+                                onClick={() => document.getElementById("avatarInput").click()}
+                            >
+                                Upload Photo
+                            </div>
+
+
+                            {hasProfilePhoto && (
+                                <>
+                                    <div className="modal-divider"></div>
+                                    <div
+                                        className="modal-item action remove"
+                                        onClick={async () => {
+                                            try {
+                                                setAvatarLoading(true);
+                                                setShowPhotoModal(false);
+                                                const filePath = getAvatarFilePath(avatarUrl);
+
+                                                if (filePath) {
+                                                    await supabase.storage
+                                                        .from("avatars")
+                                                        .remove([filePath]);
+                                                }
+
+                                                await supabase
+                                                    .from("profiles")
+                                                    .update({ avatar_url: null })
+                                                    .eq("id", profile.id);
+
+                                                setAvatarUrl(null);
+                                                setShowPhotoModal(false);
+                                            } catch (err) {
+                                                console.error(err);
+                                                alert("Failed to remove profile photo");
+                                            } finally {
+                                                setAvatarLoading(false);
+                                            }
+                                        }}
+                                    >
+                                        Remove Current Photo
+                                    </div>
+
+
+                                </>
+                            )}
+
+                            <div className="modal-divider"></div>
+
+                            <div
+                                className="modal-item cancel"
+                                onClick={() => setShowPhotoModal(false)}
+                            >
+                                Cancel
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                <input
+                    type="file"
+                    accept="image/*"
+                    id="avatarInput"
+                    hidden
+                    onChange={handleAvatarUpload}
+                />
+
+
+            </main>
+
+        </div>
+    );
+}
+
+export default Profile;

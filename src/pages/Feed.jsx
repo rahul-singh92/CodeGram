@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 function Feed() {
   useEffect(() => {
-    document.title = "Feed • CodeGram";
+    document.title = "CodeGram • Feed";
   }, []);
 
   return (

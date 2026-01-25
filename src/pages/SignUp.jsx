@@ -16,7 +16,7 @@ function Signup() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    document.title = "Sign Up • CodeGram";
+    document.title = "CodeGram • Sign Up";
   }, []);
 
   const handleSignup = async () => {

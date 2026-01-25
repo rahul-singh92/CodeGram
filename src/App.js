@@ -1,6 +1,6 @@
 import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
-import Feed from "./pages/Feed";
+import Profile from "./pages/Profile";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -36,7 +36,7 @@ function App() {
           path="/feed"
           element={
             <ProtectedRoute>
-              <Feed />
+              <Profile />
             </ProtectedRoute>
           }
         />
