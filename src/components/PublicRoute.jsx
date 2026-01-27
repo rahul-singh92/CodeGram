@@ -15,7 +15,7 @@ function PublicRoute({ children }) {
 
   if (loading) return null;
 
-  return session ? <Navigate to="/feed" /> : children;
+  return session ? <Navigate to="/profile" /> : children;
 }
 
 export default PublicRoute;

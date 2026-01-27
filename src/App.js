@@ -2,6 +2,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import EditProfile from "./pages/settings/EditProfile";
 import { supabase } from "./lib/supabase";
 import { useEffect } from "react";
 import { UserProvider } from "./context/UserContext";
@@ -66,7 +67,9 @@ function App() {
               <Settings />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element = {<EditProfile />} />
+        </Route>
 
       </Routes>
       </UserProvider>

@@ -1,34 +1,21 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
 import Sidebar from "../components/Sidebar";
+import SettingsSidebar from "../components/SettingsSidebar";
+import { Outlet } from "react-router-dom";
+import "../styles/settings.css";
 
 function Settings() {
-  const [avatarUrl, setAvatarUrl] = useState(null);
-
-  useEffect(() => {
-    const loadProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data } = await supabase
-        .from("profiles")
-        .select("avatar_url")
-        .eq("id", user.id)
-        .single();
-
-      setAvatarUrl(data?.avatar_url || null);
-    };
-
-    loadProfile();
-  }, []);
-
   return (
     <div className="profile-page">
-      <Sidebar avatarUrl={avatarUrl} />
+      <Sidebar />
 
       <main className="profile-content">
-        <h1>Settings & Privacy</h1>
-        <p>Random text for now…</p>
+        <div className="settings-layout">
+          <SettingsSidebar />
+
+          <section className="settings-content">
+            <Outlet />
+          </section>
+        </div>
       </main>
     </div>
   );
