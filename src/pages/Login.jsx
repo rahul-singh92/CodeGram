@@ -58,7 +58,7 @@ function Login() {
     }
 
     setLoading(false);
-    navigate("/feed");
+    navigate("/profile");
   };
 
   return (
