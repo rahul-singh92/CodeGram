@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import imageCompression from "browser-image-compression";
 import Sidebar from "../components/Sidebar";
-
+import AvatarModal from "../components/AvatarModal";
+import { useAvatarUpload } from "../hooks/useAvatarUpload";
 
 /* REGULAR / OUTLINE ICONS */
 import {
@@ -28,66 +28,13 @@ function Profile() {
     const [avatarLoading, setAvatarLoading] = useState(false);
     const [showAccountInfo, setShowAccountInfo] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
-    const hasProfilePhoto = !!avatarUrl;
     const navigate = useNavigate();
 
-    const handleAvatarUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        try {
-            setAvatarLoading(true);
-            setShowPhotoModal(false);
-
-            const compressedFile = await imageCompression(file, {
-                maxSizeMB: 0.3,          // ~300KB
-                maxWidthOrHeight: 512,
-                useWebWorker: true,
-            });
-
-            const fileExt = compressedFile.name.split(".").pop();
-            const filePath = `${profile.id}.${fileExt}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from("avatars")
-                .upload(filePath, compressedFile, {
-                    upsert: true,
-                    contentType: compressedFile.type,
-                });
-
-            if (uploadError) throw uploadError;
-
-            const {
-                data: { publicUrl },
-            } = supabase.storage.from("avatars").getPublicUrl(filePath);
-
-            const finalUrl = `${publicUrl}?t=${Date.now()}`;
-
-            await supabase
-                .from("profiles")
-                .update({ avatar_url: publicUrl })
-                .eq("id", profile.id);
-
-            setAvatarUrl(finalUrl);
-            setShowPhotoModal(false);
-        } catch (err) {
-            alert("Failed to upload image");
-            console.error(err);
-        } finally {
-            setAvatarLoading(false);
-        }
-    };
-
-    const getAvatarFilePath = (url) => {
-        if (!url) return null;
-
-        // Remove cache-busting query (?t=...)
-        const cleanUrl = url.split("?")[0];
-
-        // Extract path after /avatars/
-        const parts = cleanUrl.split("/avatars/");
-        return parts[1]; // e.g. "<uuid>.jpg"
-    };
+    const { uploadAvatar, removeAvatar } = useAvatarUpload(
+        profile,
+        setAvatarUrl,
+        setAvatarLoading
+    );
 
     const formatMonthYear = (dateString) => {
         const date = new Date(dateString);
@@ -212,79 +159,13 @@ function Profile() {
                     </div>
                 </div>
 
-                {showPhotoModal && (
-                    <div
-                        className="modal-overlay"
-                        onClick={() => setShowPhotoModal(false)}
-                    >
-                        <div
-                            className="photo-modal"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <div className="modal-item header">
-                                Change Profile Photo
-                            </div>
-
-                            <div className="modal-divider"></div>
-
-                            <div
-                                className="modal-item action upload"
-                                onClick={() => document.getElementById("avatarInput").click()}
-                            >
-                                Upload Photo
-                            </div>
-
-
-                            {hasProfilePhoto && (
-                                <>
-                                    <div className="modal-divider"></div>
-                                    <div
-                                        className="modal-item action remove"
-                                        onClick={async () => {
-                                            try {
-                                                setAvatarLoading(true);
-                                                setShowPhotoModal(false);
-                                                const filePath = getAvatarFilePath(avatarUrl);
-
-                                                if (filePath) {
-                                                    await supabase.storage
-                                                        .from("avatars")
-                                                        .remove([filePath]);
-                                                }
-
-                                                await supabase
-                                                    .from("profiles")
-                                                    .update({ avatar_url: null })
-                                                    .eq("id", profile.id);
-
-                                                setAvatarUrl(null);
-                                                setShowPhotoModal(false);
-                                            } catch (err) {
-                                                console.error(err);
-                                                alert("Failed to remove profile photo");
-                                            } finally {
-                                                setAvatarLoading(false);
-                                            }
-                                        }}
-                                    >
-                                        Remove Current Photo
-                                    </div>
-
-
-                                </>
-                            )}
-
-                            <div className="modal-divider"></div>
-
-                            <div
-                                className="modal-item cancel"
-                                onClick={() => setShowPhotoModal(false)}
-                            >
-                                Cancel
-                            </div>
-                        </div>
-                    </div>
-                )}
+                <AvatarModal
+                    open={showPhotoModal}
+                    onClose={() => setShowPhotoModal(false)}
+                    onUpload={uploadAvatar}
+                    onRemove={removeAvatar}
+                    hasAvatar={!!avatarUrl}
+                />
 
                 {showAccountInfo && (
                     <div
@@ -405,14 +286,6 @@ function Profile() {
                         </div>
                     </div>
                 )}
-
-                <input
-                    type="file"
-                    accept="image/*"
-                    id="avatarInput"
-                    hidden
-                    onChange={handleAvatarUpload}
-                />
 
 
             </main>
