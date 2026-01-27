@@ -348,12 +348,147 @@
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+/* ===== GENDER SECTION ===== */
+
+.edit-profile-gender {
+  position: relative;
+  margin-top: 22px;
+}
+
+/* DROPDOWN CONTAINER */
+
+.gender-dropdown {
+  position: relative;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+
+  padding: 10px 14px;
+  font-size: 14px;
+  color: white;
+
+  cursor: pointer;
+}
+
+.gender-dropdown:hover {
+  background: rgb(38, 40, 44);
+}
+
+.gender-dropdown.open {
+  background: rgb(38, 38, 38);
+}
+
+/* SELECTED VALUE */
+
+.gender-value {
+  color: #e5e7eb;
+}
+
+/* OPTIONS CONTAINER */
+
+.gender-options {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+
+  background: rgb(38, 38, 38);
+  border-radius: 12px;
+  padding: 4px 0px;
+  max-width: 320px;
+  overflow: hidden;
+
+  z-index: 10;
+}
+
+/* SINGLE OPTION */
+
+.gender-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 14px;
+  font-size: 14px;
+  color: white;
+
+  cursor: pointer;
+}
+
+.gender-option:hover {
+  background: rgb(60, 60, 60);
+}
+
+/* CHECK CIRCLE */
+
+.gender-check {
+  width: 18px;
+  height: 18px;
+
+  border-radius: 50%;
+  border: 1px solid white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 12px;
+  color: transparent; /* tick hidden */
+}
+
+/* CHECKED STATE */
+
+.gender-check.checked {
+  background: white;
+  color: rgb(38, 38, 38); /* tick color */
+}
+
+/* CHEVRON */
+
+.gender-chevron {
+  margin-left: auto;
+  color: #e5e7eb;
+  transition: transform 0.2s ease;
+}
+
+.gender-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* ===== GENDER HELPER TEXT ===== */
+
+.gender-helper-text {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgb(168, 168, 168);
+  text-align: left;
+}
+
+/* ===== PROFILE VISIBILITY INFO ===== */
+
+.profile-visibility-text {
+  margin-top: 30px;          /* ⬅️ larger gap */
+  font-size: 12px;
+  color: rgb(168, 168, 168);
+  line-height: 1.4;
+  text-align: left;
+}
+
+
+
 /* ===== SUBMIT ROW ===== */
 
 .submit-profile-row {
   display: flex;
   justify-content: flex-end; /* ⬅️ RIGHT ALIGN */
-  margin-top: 18px;
+  margin-top: 0px;
 }
 
 

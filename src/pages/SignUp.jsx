@@ -17,7 +17,7 @@ function Signup() {
   const [country, setCountry] = useState("");
 
   useEffect(() => {
-  document.title = "CodeGram • Sign Up";
+  document.title = "Sign Up • CodeGram";
 
   const detectCountry = async () => {
     try {

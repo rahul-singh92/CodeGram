@@ -18,7 +18,7 @@ function Login() {
   const isFormValid = identifier.trim() !== "" && password.length >= 6;
 
   useEffect(() => {
-    document.title = "CodeGram • Login";
+    document.title = "Login • CodeGram";
   }, []);
 
   const handleLogin = async () => {

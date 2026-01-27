@@ -137,6 +137,8 @@
 .profile-avatar {
   font-size: 140px;
   color: #9ca3af;
+  padding-top: 50px;
+  padding-left: 50px;
 }
 
 /* INFO */
@@ -460,4 +462,19 @@
 .more-menu-divider {
   height: 1px;
   background-color: rgb(55, 60, 65);
+}
+
+/* ===== PROFILE BIO ===== */
+
+.profile-bio {
+  margin-top: 6px;
+
+  font-size: 14px;
+  color: #e5e7eb;
+
+  max-width: 420px;     /* ⬅️ keeps it inside */
+  line-height: 1.4;
+
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }

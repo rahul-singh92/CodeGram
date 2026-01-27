@@ -46,7 +46,7 @@ function Profile() {
 
 
     useEffect(() => {
-        document.title = "CodeGram • Profile";
+        document.title = "Profile • CodeGram";
 
         const fetchProfile = async () => {
             const {
@@ -155,7 +155,11 @@ function Profile() {
                         <div className="profile-name">
                             {profile.full_name}
                         </div>
-
+                        {profile.bio && (
+                            <div className="profile-bio">
+                                {profile.bio}
+                            </div>
+                        )}
                     </div>
                 </div>
 
