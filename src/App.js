@@ -5,7 +5,6 @@ import Settings from "./pages/Settings";
 import EditProfile from "./pages/settings/EditProfile";
 import { supabase } from "./lib/supabase";
 import { useEffect } from "react";
-import { UserProvider } from "./context/UserContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -13,25 +12,22 @@ import PublicRoute from "./components/PublicRoute";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
-
   useEffect(() => {
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange((event) => {
-    if (event === "SIGNED_OUT") {
-      window.location.href = "/";
-    }
-  });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        window.location.href = "/";
+      }
+    });
 
-  return () => subscription.unsubscribe();
-}, []);
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <BrowserRouter>
-    <UserProvider>
       <Routes>
-
-        {/* Public Routes */}
+        {/* PUBLIC ROUTES */}
         <Route
           path="/"
           element={
@@ -50,7 +46,7 @@ function App() {
           }
         />
 
-        {/* Protected Routes */}
+        {/* PROTECTED ROUTES */}
         <Route
           path="/profile"
           element={
@@ -68,11 +64,9 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element = {<EditProfile />} />
+          <Route index element={<EditProfile />} />
         </Route>
-
       </Routes>
-      </UserProvider>
     </BrowserRouter>
   );
 }

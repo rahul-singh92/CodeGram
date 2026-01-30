@@ -1,21 +1,18 @@
 import { Navigate } from "react-router-dom";
-import { supabase } from "../lib/supabase";
-import { useEffect, useState } from "react";
+import { useUser } from "../context/UserContext";
 
 function PublicRoute({ children }) {
-  const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState(null);
+  const { user, loading } = useUser();
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
-  }, []);
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  if (loading) return null;
+  if (user) {
+    return <Navigate to="/profile" replace />;
+  }
 
-  return session ? <Navigate to="/profile" /> : children;
+  return children;
 }
 
 export default PublicRoute;

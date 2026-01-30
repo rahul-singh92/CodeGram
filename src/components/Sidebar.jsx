@@ -21,10 +21,11 @@ import {
 
 import brandLogo from "../assets/brand logo.svg";
 import "../styles/sidebar.css";
+import { supabase } from "../lib/supabase";
 
 function Sidebar() {
   const navigate = useNavigate();
-  const { profile } = useUser(); // ✅ FROM CONTEXT
+  const { profile } = useUser();
   const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   const avatarUrl = profile?.avatar_url;
@@ -137,9 +138,10 @@ function Sidebar() {
 
             <div
               className="more-menu-item logout"
-              onClick={() => {
+              onClick={async () => {
+                await supabase.auth.signOut();
                 setShowMoreMenu(false);
-                navigate("/logout"); // optional
+                navigate("/");
               }}
             >
               <FontAwesomeIcon icon={faBars} />

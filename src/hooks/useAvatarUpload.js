@@ -1,7 +1,12 @@
 import imageCompression from "browser-image-compression";
 import { supabase } from "../lib/supabase";
 
-export function useAvatarUpload(profile, setAvatarUrl, setLoading) {
+export function useAvatarUpload(
+  profile,
+  setAvatarUrl,
+  setLoading,
+  setProfile // 🔥 REQUIRED
+) {
   const uploadAvatar = async (file) => {
     if (!file || !profile) return;
 
@@ -28,12 +33,21 @@ export function useAvatarUpload(profile, setAvatarUrl, setLoading) {
         data: { publicUrl },
       } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
+      const freshUrl = `${publicUrl}?v=${Date.now()}`;
+
+      // update DB
       await supabase
         .from("profiles")
-        .update({ avatar_url: publicUrl })
+        .update({ avatar_url: freshUrl })
         .eq("id", profile.id);
 
-      setAvatarUrl(`${publicUrl}?t=${Date.now()}`);
+      // update LOCAL UI
+      setAvatarUrl(freshUrl);
+
+      setProfile((prev) => ({
+        ...prev,
+        avatar_url: freshUrl,
+      }));
     } finally {
       setLoading(false);
     }
@@ -57,7 +71,13 @@ export function useAvatarUpload(profile, setAvatarUrl, setLoading) {
         .update({ avatar_url: null })
         .eq("id", profile.id);
 
+      // update LOCAL UI
       setAvatarUrl(null);
+
+      setProfile((prev) => ({
+        ...prev,
+        avatar_url: null,
+      }));
     } finally {
       setLoading(false);
     }

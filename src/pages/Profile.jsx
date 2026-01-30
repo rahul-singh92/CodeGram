@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Sidebar from "../components/Sidebar";
 import AvatarModal from "../components/AvatarModal";
 import { useAvatarUpload } from "../hooks/useAvatarUpload";
+import { useUser } from "../context/UserContext";
+import { supabase } from "../lib/supabase";
 
-/* REGULAR / OUTLINE ICONS */
+
 import {
     faUserCircle
 } from "@fortawesome/free-regular-svg-icons";
 
-/* SOLID ICONS (no regular version exists) */
+
 import {
     faGear,
     faCalendar,
@@ -21,8 +22,9 @@ import {
 import "../styles/profile.css";
 
 function Profile() {
-    const [profile, setProfile] = useState(null);
-    const [loading, setLoading] = useState(true);
+
+    const { user, profile, setProfile, loading } = useUser();
+
     const [showPhotoModal, setShowPhotoModal] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [avatarLoading, setAvatarLoading] = useState(false);
@@ -33,8 +35,24 @@ function Profile() {
     const { uploadAvatar, removeAvatar } = useAvatarUpload(
         profile,
         setAvatarUrl,
-        setAvatarLoading
+        setAvatarLoading,
+        setProfile
     );
+
+    useEffect(() => {
+        if(!loading && !user) {
+            navigate("/");
+        }
+    }, [loading, user, navigate]);
+
+    useEffect(() => {
+        if(profile?.avatar_url) {
+            setAvatarUrl(profile.avatar_url);
+        }
+        else {
+            setAvatarUrl(null);
+        }
+    }, [profile]);
 
     const formatMonthYear = (dateString) => {
         const date = new Date(dateString);
@@ -44,48 +62,9 @@ function Profile() {
         });
     };
 
-
-    useEffect(() => {
-        document.title = "Profile • CodeGram";
-
-        const fetchProfile = async () => {
-            const {
-                data: { user },
-            } = await supabase.auth.getUser();
-
-            if (!user) {
-                await supabase.auth.signOut();
-                navigate("/");
-                return;
-            }
-
-            const { data, error } = await supabase
-                .from("profiles")
-                .select("*")
-                .eq("id", user.id)
-                .single();
-
-            if (error || !data) {
-                await supabase.auth.signOut();
-                navigate("/");
-                return;
-            }
-
-            setProfile(data);
-            setAvatarUrl(data.avatar_url);
-            setLoading(false);
-
-
-            setLoading(false);
-        };
-
-        fetchProfile();
-    }, [navigate]);
-
     if (loading || !profile) {
         return null;
     }
-
 
     return (
         <div className="profile-page">

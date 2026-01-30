@@ -30,7 +30,8 @@ function EditProfile() {
   const { uploadAvatar, removeAvatar } = useAvatarUpload(
     profile,
     setAvatarUrl,
-    setAvatarLoading
+    setAvatarLoading,
+    setProfile
   );
 
   /* ---------- CHANGE CHECKS ---------- */
