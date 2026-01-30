@@ -4,7 +4,7 @@ import GlobalLoader from "../components/GlobalLoader";
 
 const UserContext = createContext(null);
 
-const MIN_LOADER_TIME = 1500; // 1.5s smooth loader
+const MIN_LOADER_TIME = 1500;
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -12,57 +12,71 @@ export function UserProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
     const startTime = Date.now();
 
-    const fetchProfile = async (userId) => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      if (isMounted) setProfile(data);
-    };
-
-    const init = async () => {
-      const { data } = await supabase.auth.getSession();
-      const session = data.session;
-
-      if (session?.user) {
-        setUser(session.user);
-        await fetchProfile(session.user.id);
-      }
-
+    // ✅ ALWAYS resolve loader once auth state is known
+    const resolveLoader = () => {
       const elapsed = Date.now() - startTime;
       const remaining = MIN_LOADER_TIME - elapsed;
 
       setTimeout(() => {
-        if (isMounted) setLoading(false);
+        if (mounted) setLoading(false);
       }, Math.max(0, remaining));
     };
 
-    init();
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+
+      const session = data.session;
+
+      if (session?.user) {
+        setUser(session.user);
+        fetchProfile(session.user.id);
+      } else {
+        setUser(null);
+        setProfile(null);
+      }
+
+      resolveLoader();
+    });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (!session?.user) {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+
+      if (session?.user) {
+        setUser(session.user);
+        fetchProfile(session.user.id);
+      } else {
         setUser(null);
         setProfile(null);
-        return;
       }
-
-      setUser(session.user);
-      await fetchProfile(session.user.id);
     });
 
+    async function fetchProfile(userId) {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", userId)
+          .single();
+
+        if (mounted) setProfile(data);
+      } catch (err) {
+        console.error("Profile fetch failed:", err);
+        if (mounted) setProfile(null);
+      }
+    }
+
     return () => {
-      isMounted = false;
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
 
+  // ✅ Loader ONLY depends on auth resolution
   if (loading) {
     return <GlobalLoader />;
   }
