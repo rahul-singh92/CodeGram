@@ -103,6 +103,49 @@
   font-size: 12px;
 }
 
+.input-group label.filled {
+  top: 12px;
+  font-size: 12px;
+}
+
+.input-group.error input {
+  border-color: #ef4444;
+}
+
+.input-group.error label {
+  color: #ef4444;
+}
+
+.input-error {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: -14px;
+  margin-bottom: 12px;
+}
+
+.input-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: -14px;
+  margin-bottom: 12px;
+}
+
+.input-success {
+  color: #22c55e; /* green */
+  font-size: 12px;
+  margin-top: -14px;
+  margin-bottom: 12px;
+}
+
+.input-group.success input {
+  border-color: #22c55e;
+}
+
+.input-group.success label {
+  color: #22c55e;
+}
+
+
 /* SIGNUP BUTTON */
 .signup-button {
   width: 100%;

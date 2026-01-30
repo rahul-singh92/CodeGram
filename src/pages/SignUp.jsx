@@ -16,6 +16,48 @@ function Signup() {
   const [loading, setLoading] = useState(false);
   const [country, setCountry] = useState("");
 
+  // Validation for if user touched the input or not
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [usernameTouched, setUsernameTouched] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState(false);
+
+  const emailError = emailTouched && (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+  const passwordError = passwordTouched && password.length < 6;
+
+  useEffect(() => {
+    if(!username || username.length < 3) {
+      setUsernameError("");
+      return;
+    }
+
+    if(!usernameTouched) return;
+
+    const timeout = setTimeout(async () => {
+      setCheckingUsername(true);
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("username", username)
+        .limit(1);
+
+      if(!error && data.length > 0) {
+        setUsernameError("Username already taken");
+      }
+      else {
+        setUsernameError("");
+        setUsernameAvailable(true);
+      }
+
+      setCheckingUsername(false);
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [username, usernameTouched]);
+
   useEffect(() => {
   document.title = "Sign Up • CodeGram";
 
@@ -33,7 +75,17 @@ function Signup() {
 }, []);
 
 
+
   const handleSignup = async () => {
+    if(usernameError) {
+      setUsernameTouched(true);
+      return;
+    }
+    if(emailError|| passwordError) {
+      setEmailTouched(true);
+      setPasswordTouched(true);
+      return;
+    }
     if (
       !email ||
       password.length < 6 ||
@@ -100,27 +152,36 @@ function Signup() {
         </p>
 
         <p className="field-label">Email Address</p>
-        <div className="input-group">
+        <div className={`input-group ${emailError ? "error" : ""}`}>
           <input
-            type="email"
+            type="text"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onBlur={() => setEmailTouched(true)}
           />
-          <label>Email</label>
+          <label className={email ? "filled" : ""}>Email</label>
         </div>
 
+        {emailError && (
+          <p className="input-error">* Enter a valid email address</p>
+          )}
+
         <p className="field-label">Password</p>
-        <div className="input-group">
+        <div className={`input-group ${passwordError ? "error" : ""}`}>
           <input
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onBlur={() => setPasswordTouched(true)}
           />
-          <label>Password</label>
+          <label className={password ? "filled" : ""}>Password</label>
         </div>
 
+        {passwordError &&
+          <p className="input-error">* Password must be at least 6 characters</p>
+        }
         <p className="field-label">Birthday</p>
         <div className="birthday-group">
           <select value={day} onChange={(e) => setDay(e.target.value)}>
@@ -161,15 +222,28 @@ function Signup() {
         </div>
 
         <p className="field-label">Username</p>
-        <div className="input-group">
+        <div className={`input-group ${usernameError ? "error" : ""}`}>
           <input
             type="text"
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            onBlur={() => setUsernameTouched(true)}
           />
-          <label>Username</label>
+          <label className={username ? "filled" : ""}>Username</label>
         </div>
+
+            {checkingUsername && (
+              <p className="input-hint">Checking availability...</p>
+            )}
+
+            {usernameError && (
+              <p className="input-error">* {usernameError}</p>
+            )}
+
+            {usernameAvailable && !usernameError && (
+  <p className="input-success">✓ Username is available</p>
+)}
 
         <button
           className="signup-button"
