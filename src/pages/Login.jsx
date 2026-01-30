@@ -58,7 +58,6 @@ function Login() {
     }
 
     setLoading(false);
-    navigate("/profile");
   };
 
   return (

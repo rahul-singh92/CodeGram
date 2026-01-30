@@ -3,8 +3,6 @@ import Signup from "./pages/SignUp";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import EditProfile from "./pages/settings/EditProfile";
-import { supabase } from "./lib/supabase";
-import { useEffect } from "react";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -12,18 +10,6 @@ import PublicRoute from "./components/PublicRoute";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") {
-        window.location.href = "/";
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   return (
     <BrowserRouter>
       <Routes>
