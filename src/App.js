@@ -3,6 +3,7 @@ import Signup from "./pages/SignUp";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import EditProfile from "./pages/settings/EditProfile";
+import Notifications from "./pages/settings/Notifications";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -51,6 +52,7 @@ function App() {
           }
         >
           <Route index element={<EditProfile />} />
+          <Route path="/settings/notifications" element={<Notifications />} />
         </Route>
       </Routes>
     </BrowserRouter>

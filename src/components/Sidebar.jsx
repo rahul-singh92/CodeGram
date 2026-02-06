@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useUser } from "../context/UserContext";
+import NotificationsSidebar from "./NotificationsSidebar";
 
 import {
   faHouse,
   faImage,
-  faBell,
+  faHeart,
   faUser,
   faCompass,
 } from "@fortawesome/free-regular-svg-icons";
@@ -27,6 +28,47 @@ function Sidebar() {
   const navigate = useNavigate();
   const { profile } = useUser();
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
+
+  const fetchUnread = useCallback(async () => {
+    if (!profile?.id) return;
+
+    const { data, error } = await supabase
+      .from("notifications")
+      .select("id")
+      .eq("user_id", profile.id)
+      .eq("is_read", false)
+      .limit(1);
+
+    if (!error) {
+      setHasUnread(data.length > 0);
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    fetchUnread();
+  }, [profile, fetchUnread]);
+
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      if (!profile?.id) return;
+
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("id")
+        .eq("user_id", profile.id)
+        .eq("is_read", false)
+        .limit(1);
+
+      if (!error) {
+        setHasUnread(data.length > 0);
+      }
+    };
+
+    fetchUnread();
+  }, [profile]);
 
   const avatarUrl = profile?.avatar_url;
 
@@ -70,10 +112,22 @@ function Sidebar() {
             <span>Explore</span>
           </div>
 
-          <div className="menu-item">
-            <FontAwesomeIcon icon={faBell} />
+          <div
+            className="menu-item"
+            onClick={() => setShowNotifications(true)}
+          >
+            <div className="notif-icon-wrapper">
+              <FontAwesomeIcon icon={faHeart} />
+              {profile?.push_notifications && hasUnread && (
+                <span className="notif-red-dot"></span>
+              )}
+            </div>
+
             <span>Notifications</span>
           </div>
+
+
+
 
           <div className="menu-item">
             <FontAwesomeIcon icon={faSquarePlus} />
@@ -111,13 +165,24 @@ function Sidebar() {
         </div>
       </aside>
 
+      <NotificationsSidebar
+        open={showNotifications}
+        onClose={() => {
+          setShowNotifications(false);
+          fetchUnread();
+        }}
+      />
+
+
       {/* MORE MENU OVERLAY */}
       {showMoreMenu && (
         <>
           {/* CLICK OUTSIDE */}
           <div
             className="more-menu-overlay"
-            onClick={() => setShowMoreMenu(false)}
+            onClick={() => setShowMoreMenu(false)
+
+            }
           />
 
           {/* MENU */}

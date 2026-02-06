@@ -15,7 +15,6 @@ export function UserProvider({ children }) {
     let mounted = true;
     const startTime = Date.now();
 
-    // ✅ ALWAYS resolve loader once auth state is known
     const resolveLoader = () => {
       const elapsed = Date.now() - startTime;
       const remaining = MIN_LOADER_TIME - elapsed;
@@ -76,7 +75,6 @@ export function UserProvider({ children }) {
     };
   }, []);
 
-  // ✅ Loader ONLY depends on auth resolution
   if (loading) {
     return <GlobalLoader />;
   }

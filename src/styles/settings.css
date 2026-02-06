@@ -500,3 +500,109 @@
 .submit-profile-btn.active:hover {
   opacity: 0.9;
 }
+
+/* ===== NOTIFICATIONS PAGE ===== */
+
+.notifications-wrapper {
+  width: 100%;
+  max-width: 720px;
+  margin: 60px auto 0;
+  padding: 0 12px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.toggle-switch.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.notifications-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #f9fafb;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+/* ===== MAIN BOX ===== */
+
+.notifications-box {
+  width: 100%;
+  border-radius: 16px;
+
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  padding: 8px 0;
+}
+
+/* ===== ROW ===== */
+
+.notification-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 16px 18px;
+}
+
+.notification-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.notification-subtext {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ===== DIVIDER ===== */
+
+.notification-divider {
+  height: 1px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ===== TOGGLE SWITCH ===== */
+
+.toggle-switch {
+  width: 46px;
+  height: 24px;
+  border-radius: 999px;
+
+  background: rgb(55, 55, 55);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  display: flex;
+  align-items: center;
+
+  padding: 3px;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.toggle-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+
+  transform: translateX(0px);
+  transition: all 0.25s ease;
+}
+
+/* ON STATE */
+
+.toggle-switch.on {
+  background: rgb(78, 92, 240);
+}
+
+.toggle-switch.on .toggle-circle {
+  transform: translateX(22px);
+}

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { User } from "lucide-react";
+import { User, Bell } from "lucide-react";
 
 function SettingsSidebar() {
   return (
@@ -20,6 +20,16 @@ function SettingsSidebar() {
       >
         <User className="settings-icon" size={18} strokeWidth={1.5} />
         <span>Edit Profile</span>
+      </NavLink>
+
+      <NavLink
+        to="/settings/notifications"
+        className={({ isActive }) => 
+          `settings-item ${isActive ? "active" : ""}`
+        }
+      >
+        <Bell className="settings-icon" size={18} strokeWidth={1.5}/>
+        <span>Notifications</span>
       </NavLink>
     </aside>
   );
