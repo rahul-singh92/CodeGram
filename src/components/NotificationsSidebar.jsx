@@ -113,7 +113,7 @@ function NotificationsSidebar({ open, onClose }) {
                     {/* Loading Skeleton */}
                     {loading && (
                         <div className="notif-skeleton-wrapper">
-                            {[1, 2, 3, 4, 5, 6].map((item) => (
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((item) => (
                                 <div key={item} className="notif-skeleton-item">
                                     <div className="notif-skeleton-avatar shimmer"></div>
 
