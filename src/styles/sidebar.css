@@ -599,9 +599,10 @@
 
 .notif-icon-wrapper {
   position: relative;
-  display: flex;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
   width: 26px;
   height: 26px;
@@ -611,7 +612,7 @@
 .notif-red-dot {
   position: absolute;
   top: -3px;
-  right: -3px;
+  right:-3px;
 
   width: 12px;
   height: 12px;

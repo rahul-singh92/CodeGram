@@ -50,26 +50,6 @@ function Sidebar() {
     fetchUnread();
   }, [profile, fetchUnread]);
 
-
-  useEffect(() => {
-    const fetchUnread = async () => {
-      if (!profile?.id) return;
-
-      const { data, error } = await supabase
-        .from("notifications")
-        .select("id")
-        .eq("user_id", profile.id)
-        .eq("is_read", false)
-        .limit(1);
-
-      if (!error) {
-        setHasUnread(data.length > 0);
-      }
-    };
-
-    fetchUnread();
-  }, [profile]);
-
   const avatarUrl = profile?.avatar_url;
 
   return (
