@@ -111,7 +111,7 @@ function Profile() {
                             </h2>
 
 
-                            <button className="profile-btn">Edit Profile</button>
+                            <button className="profile-btn" onClick={() => navigate("/settings")}>Edit Profile</button>
                             <button className="profile-btn secondary">View Archive</button>
 
                             <button

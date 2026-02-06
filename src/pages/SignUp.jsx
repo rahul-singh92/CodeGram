@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import "../styles/signup.css";
 
@@ -28,12 +28,12 @@ function Signup() {
   const passwordError = passwordTouched && password.length < 6;
 
   useEffect(() => {
-    if(!username || username.length < 3) {
+    if (!username || username.length < 3) {
       setUsernameError("");
       return;
     }
 
-    if(!usernameTouched) return;
+    if (!usernameTouched) return;
 
     const timeout = setTimeout(async () => {
       setCheckingUsername(true);
@@ -44,7 +44,7 @@ function Signup() {
         .eq("username", username)
         .limit(1);
 
-      if(!error && data.length > 0) {
+      if (!error && data.length > 0) {
         setUsernameError("Username already taken");
       }
       else {
@@ -59,29 +59,29 @@ function Signup() {
   }, [username, usernameTouched]);
 
   useEffect(() => {
-  document.title = "Sign Up • CodeGram";
+    document.title = "Sign Up • CodeGram";
 
-  const detectCountry = async () => {
-    try {
-      const res = await fetch("https://ipapi.co/json/");
-      const data = await res.json();
-      setCountry(data.country_name);
-    } catch (err) {
-      console.warn("Could not detect country");
-    }
-  };
+    const detectCountry = async () => {
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        setCountry(data.country_name);
+      } catch (err) {
+        console.warn("Could not detect country");
+      }
+    };
 
-  detectCountry();
-}, []);
+    detectCountry();
+  }, []);
 
 
 
   const handleSignup = async () => {
-    if(usernameError) {
+    if (usernameError) {
       setUsernameTouched(true);
       return;
     }
-    if(emailError|| passwordError) {
+    if (emailError || passwordError) {
       setEmailTouched(true);
       setPasswordTouched(true);
       return;
@@ -135,7 +135,7 @@ function Signup() {
     }
 
     setLoading(false);
-    navigate("/feed");
+    navigate("/profile");
   };
 
   return (
@@ -165,7 +165,7 @@ function Signup() {
 
         {emailError && (
           <p className="input-error">* Enter a valid email address</p>
-          )}
+        )}
 
         <p className="field-label">Password</p>
         <div className={`input-group ${passwordError ? "error" : ""}`}>
@@ -194,8 +194,8 @@ function Signup() {
           <select value={month} onChange={(e) => setMonth(e.target.value)}>
             <option value="">Month</option>
             {[
-              "January","February","March","April","May","June",
-              "July","August","September","October","November","December"
+              "January", "February", "March", "April", "May", "June",
+              "July", "August", "September", "October", "November", "December"
             ].map((m, i) => (
               <option key={i} value={i + 1}>{m}</option>
             ))}
@@ -233,17 +233,17 @@ function Signup() {
           <label className={username ? "filled" : ""}>Username</label>
         </div>
 
-            {checkingUsername && (
-              <p className="input-hint">Checking availability...</p>
-            )}
+        {checkingUsername && (
+          <p className="input-hint">Checking availability...</p>
+        )}
 
-            {usernameError && (
-              <p className="input-error">* {usernameError}</p>
-            )}
+        {usernameError && (
+          <p className="input-error">* {usernameError}</p>
+        )}
 
-            {usernameAvailable && !usernameError && (
-  <p className="input-success">✓ Username is available</p>
-)}
+        {usernameAvailable && !usernameError && (
+          <p className="input-success">✓ Username is available</p>
+        )}
 
         <button
           className="signup-button"

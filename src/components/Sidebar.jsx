@@ -3,18 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useUser } from "../context/UserContext";
 import NotificationsSidebar from "./NotificationsSidebar";
+import {
+  HomeIcon,
+  ReelsIcon,
+  MessagesIcon,
+  SearchIcon,
+  ExploreIcon,
+} from "./icons/AppIcons";
+
 
 import {
-  faHouse,
-  faImage,
   faHeart,
   faUser,
-  faCompass,
 } from "@fortawesome/free-regular-svg-icons";
 
 import {
-  faMagnifyingGlass,
-  faMessage,
   faSquarePlus,
   faBars,
   faGear,
@@ -68,27 +71,27 @@ function Sidebar() {
         <div className="sidebar-middle">
 
           <div className="menu-item" onClick={() => navigate("/feed")}>
-            <FontAwesomeIcon icon={faHouse} />
+            <HomeIcon />
             <span>Home</span>
           </div>
 
           <div className="menu-item">
-            <FontAwesomeIcon icon={faImage} />
+            <ReelsIcon />
             <span>Posts</span>
           </div>
 
           <div className="menu-item">
-            <FontAwesomeIcon icon={faMessage} />
+            <MessagesIcon />
             <span>Messages</span>
           </div>
 
           <div className="menu-item">
-            <FontAwesomeIcon icon={faMagnifyingGlass} />
+            <SearchIcon />
             <span>Search</span>
           </div>
 
           <div className="menu-item">
-            <FontAwesomeIcon icon={faCompass} />
+            <ExploreIcon />
             <span>Explore</span>
           </div>
 
