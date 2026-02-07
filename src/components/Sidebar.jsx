@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useUser } from "../context/UserContext";
 import NotificationsSidebar from "./NotificationsSidebar";
+import CreatePostModal from "./CreatePostModal";
 import {
   HomeIcon,
   ReelsIcon,
@@ -33,6 +34,7 @@ function Sidebar() {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
+  const [showCreatePost, setShowCreatePost] = useState(false);
 
   const fetchUnread = useCallback(async () => {
     if (!profile?.id) return;
@@ -109,13 +111,11 @@ function Sidebar() {
             <span>Notifications</span>
           </div>
 
+          <div className="menu-item" onClick={() => setShowCreatePost(true)}>
+  <FontAwesomeIcon icon={faSquarePlus} />
+  <span>Create</span>
+</div>
 
-
-
-          <div className="menu-item">
-            <FontAwesomeIcon icon={faSquarePlus} />
-            <span>Create</span>
-          </div>
 
           {/* PROFILE */}
           <div
@@ -156,6 +156,14 @@ function Sidebar() {
         }}
       />
 
+
+<CreatePostModal
+  open={showCreatePost}
+  onClose={() => setShowCreatePost(false)}
+  onSelectFile={() => {
+    alert("File picker will open here");
+  }}
+/>
 
       {/* MORE MENU OVERLAY */}
       {showMoreMenu && (

@@ -738,3 +738,402 @@
     right: 100%;
   }
 }
+
+
+/* ===========================
+   CREATE POST MODAL
+=========================== */
+
+.createpost-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 2000;
+}
+
+.createpost-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 520px;
+  background: rgb(33, 35, 40);
+  border-radius: 16px;
+  overflow: hidden;
+
+  z-index: 2100;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.createpost-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 14px 18px;
+}
+
+.createpost-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+}
+
+.createpost-close-btn {
+  position: absolute;
+  right: 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.createpost-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.createpost-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.createpost-content {
+  padding: 50px 20px;
+  text-align: center;
+  color: white;
+}
+
+.createpost-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.createpost-text {
+  font-size: 15px;
+  margin-bottom: 22px;
+  color: #e5e7eb;
+}
+
+.createpost-btn {
+  padding: 10px 18px;
+  background: rgb(78, 93, 240);
+  border: 1px solid rgb(50, 55, 60);
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.createpost-btn:hover {
+  background: rgb(67, 85, 241);
+}
+
+/* ===========================
+   CROP MODAL
+=========================== */
+
+.crop-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 520px;
+  height: 620px; /* you can adjust */
+  background: rgb(33, 35, 40);
+  border-radius: 16px;
+  overflow: hidden;
+
+  z-index: 2200;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.crop-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 14px 18px;
+}
+
+.crop-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.crop-back-btn {
+  position: absolute;
+  left: 14px;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.crop-back-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* THIS IS IMPORTANT */
+.crop-box {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: black;
+  overflow: hidden;
+  position: relative;
+}
+
+/* FULL AREA FRAME */
+.crop-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  overflow: hidden;
+  background: black;
+}
+
+/* IMAGE */
+.crop-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 140%;
+  height: 140%;
+
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  user-select: none;
+}
+
+
+/* CROP OPTIONS BUTTON */
+.crop-options-wrapper {
+  position: relative;
+}
+
+.zoom-wrapper {
+  position: relative;
+}
+.crop-options-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+}
+
+.crop-options-btn:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+/* DROPDOWN MENU */
+.crop-options-menu {
+  position: absolute;
+  bottom: 48px;
+  left: 0;
+
+  width: 140px;
+  background: rgba(20, 20, 20, 0.95);
+  border-radius: 12px;
+  overflow: hidden;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.crop-option {
+  padding: 12px 14px;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+}
+
+.crop-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* DEFAULT FULL */
+.crop-frame.original {
+  width: 100%;
+  height: 100%;
+}
+
+/* 1:1 */
+.crop-frame.square {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  margin: auto;
+}
+
+/* 4:5 */
+.crop-frame.portrait {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  margin: auto;
+}
+
+/* 16:9 */
+.crop-frame.landscape {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: auto;
+}
+
+/* CENTER FRAME */
+.crop-frame.square,
+.crop-frame.portrait,
+.crop-frame.landscape {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  background: black;
+}
+
+/* BOTTOM LEFT CONTROLS */
+.crop-controls {
+  position: absolute;
+  bottom: 18px;
+  left: 18px;
+
+  display: flex;
+  gap: 10px;
+}
+
+/* ZOOM SLIDER BOX */
+.zoom-slider-box {
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+
+  width: 130px;   /* reduced */
+  padding: 8px 12px;
+
+  background: rgba(20, 20, 20, 0.92);
+  border-radius: 12px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.zoom-slider {
+  width: 100%;
+  cursor: pointer;
+  appearance: none;
+  height: 5px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.25);
+  outline: none;
+}
+/* SLIDER THUMB (CHROME, EDGE, SAFARI) */
+.zoom-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: none;
+}
+
+/* SLIDER THUMB (FIREFOX) */
+.zoom-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: none;
+}
+
+/* SLIDER TRACK (FIREFOX) */
+.zoom-slider::-moz-range-track {
+  height: 3px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ===========================
+   DISCARD MODAL
+=========================== */
+
+.discard-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 3000;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.discard-box {
+  width: 360px;
+  background: rgb(33, 35, 40);
+  border-radius: 14px;
+  overflow: hidden;
+  text-align: center;
+  color: white;
+}
+
+.discard-title {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 20px 16px 6px;
+}
+
+.discard-subtitle {
+  font-size: 13px;
+  color: #9ca3af;
+  padding: 0 16px 18px;
+  line-height: 1.4;
+}
+
+.discard-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.discard-action {
+  padding: 14px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.discard-action:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.discard-red {
+  color: #ef4444;
+  font-weight: 600;
+}
