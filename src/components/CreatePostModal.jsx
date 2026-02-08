@@ -1,9 +1,11 @@
-import { X, ArrowLeft } from "lucide-react";
+import { X, ArrowLeft, SmileIcon } from "lucide-react";
 import { ReelsIcon } from "./icons/AppIcons";
 import { useRef, useState } from "react";
+import { useUser } from "../context/UserContext";
 
 function CreatePostModal({ open, onClose }) {
     const fileInputRef = useRef(null);
+    const { user, profile } = useUser();
 
     const [showCropBox, setShowCropBox] = useState(false);
     const [showDiscardBox, setShowDiscardBox] = useState(false);
@@ -29,6 +31,13 @@ function CreatePostModal({ open, onClose }) {
     const [showEditBox, setShowEditBox] = useState(false);
     const [activeTab, setActiveTab] = useState("filters");
     const [imageEdits, setImageEdits] = useState({});
+    //Caption modal
+    const [showCaptionBox, setShowCaptionBox] = useState(false);
+    const [caption, setCaption] = useState("");
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+    const [hideLikeCounts, setHideLikeCounts] = useState(false);
+    const [turnOffCommenting, setTurnOffCommenting] = useState(false);
 
 
     if (!open) return null;
@@ -608,7 +617,7 @@ function CreatePostModal({ open, onClose }) {
 
                         <h2>Edit</h2>
 
-                        <button className="crop-next-btn">
+                        <button className="crop-next-btn" onClick={() => setShowCaptionBox(true)}>
                             Next
                         </button>
                     </div>
@@ -796,6 +805,229 @@ function CreatePostModal({ open, onClose }) {
                                 </div>
                             )}
 
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* =======================
+          CAPTION MODAL
+      ======================= */}
+            {showCropBox && showEditBox && showCaptionBox && (
+                <div className="caption-modal">
+                    {/* Header */}
+                    <div className="caption-header">
+                        <button
+                            className="crop-back-btn"
+                            onClick={() => setShowCaptionBox(false)}
+                        >
+                            <ArrowLeft size={20} strokeWidth={1.5} />
+                        </button>
+
+                        <h2>Create new post</h2>
+
+                        <button className="crop-next-btn" onClick={() => {
+                            // Handle share logic here
+                            console.log("Share post", { images, imageEdits, caption });
+                        }}>
+                            Share
+                        </button>
+                    </div>
+
+                    <div className="createpost-divider"></div>
+
+                    <div className="caption-body">
+                        {/* LEFT IMAGE PREVIEW */}
+                        <div className="caption-preview">
+                            {activeIndex > 0 && (
+                                <button
+                                    className="edit-arrow left"
+                                    onClick={() => setActiveIndex((prev) => prev - 1)}
+                                >
+                                    ‹
+                                </button>
+                            )}
+
+                            {activeIndex < images.length - 1 && (
+                                <button
+                                    className="edit-arrow right"
+                                    onClick={() => setActiveIndex((prev) => prev + 1)}
+                                >
+                                    ›
+                                </button>
+                            )}
+
+                            {images[activeIndex] && (() => {
+                                const currentEdit = getCurrentEdit() || {
+                                    filter: "Original",
+                                    brightness: 0,
+                                    contrast: 0,
+                                    fade: 0,
+                                    saturation: 0,
+                                    temperature: 0,
+                                    vignette: 0,
+                                    crop: { zoom: 1, x: 0, y: 0, aspect: "original" }
+                                };
+
+                                const cropAspect = currentEdit.crop?.aspect || 'original';
+
+                                return (
+                                    <div className={`edit-preview-wrapper ${cropAspect}`}>
+                                        <img
+                                            src={images[activeIndex].url}
+                                            alt="preview"
+                                            className="edit-preview-img"
+                                            draggable={false}
+                                            style={{
+                                                ...getFilterStyle(currentEdit),
+                                                transform: `translate(calc(-50% + ${currentEdit.crop?.x || 0}px), calc(-50% + ${currentEdit.crop?.y || 0}px)) scale(${currentEdit.crop?.zoom || 1})`,
+                                                position: "absolute",
+                                                top: "50%",
+                                                left: "50%",
+                                                objectFit: "contain",
+                                            }}
+                                        />
+                                    </div>
+                                );
+                            })()}
+
+                            {/* DOTS */}
+                            <div className="edit-dots">
+                                {images.map((_, i) => (
+                                    <span
+                                        key={i}
+                                        className={`edit-dot ${i === activeIndex ? "active" : ""}`}
+                                    ></span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* RIGHT PANEL - CAPTION */}
+                        <div className="caption-panel">
+                            {/* User Info */}
+                            <div className="caption-user-info">
+                                {profile?.avatar_url ? (
+                                    <img 
+                                        src={profile.avatar_url} 
+                                        alt="avatar" 
+                                        className="caption-avatar"
+                                    />
+                                ) : (
+                                    <div className="caption-avatar-placeholder">
+                                        {user?.email?.[0]?.toUpperCase() || "U"}
+                                    </div>
+                                )}
+                                <span className="caption-username">
+                                    {profile?.username || user?.email?.split('@')[0] || "user"}
+                                </span>
+                            </div>
+
+                            {/* Caption Input */}
+                            <div className="caption-input-wrapper">
+                                <textarea
+                                    className="caption-textarea"
+                                    placeholder="Write a caption..."
+                                    value={caption}
+                                    onChange={(e) => {
+                                        if (e.target.value.length <= 2200) {
+                                            setCaption(e.target.value);
+                                        }
+                                    }}
+                                    maxLength={2200}
+                                />
+                                
+                                {/* Character count and emoji */}
+                                <div className="caption-footer">
+                                    <button 
+                                        className="emoji-btn"
+                                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                    >
+                                        <SmileIcon size={20} />
+                                    </button>
+                                    <span className="char-count">
+                                        {caption.length}/2,200
+                                    </span>
+                                </div>
+
+                                {/* Simple Emoji Picker */}
+                                {showEmojiPicker && (
+                                    <div className="emoji-picker">
+                                        {['😀', '😂', '😍', '🥰', '😎', '🤔', '👍', '❤️', '🔥', '✨', '🎉', '💯', '🙌', '👏', '💪', '🌟', '⭐', '💖', '😊', '😢', '😭', '🥺', '😴', '🤗', '🙏', '💕', '🎈', '🎊', '🌈', '☀️', '🌙', '⚡', '💫', '🌸', '🌺', '🌻', '🌹', '🌷', '🍀', '🎄', '🎃'].map(emoji => (
+                                            <button
+                                                key={emoji}
+                                                className="emoji-item"
+                                                onClick={() => {
+                                                    setCaption(prev => prev + emoji);
+                                                    setShowEmojiPicker(false);
+                                                }}
+                                            >
+                                                {emoji}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Advanced Settings */}
+                            <div className="advanced-settings-section">
+                                <button 
+                                    className="advanced-settings-toggle"
+                                    onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+                                >
+                                    <span>Advanced settings</span>
+                                    <svg
+                                        className={`toggle-icon ${showAdvancedSettings ? 'open' : ''}`}
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                    >
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </button>
+
+                                {showAdvancedSettings && (
+                                    <div className="advanced-settings-content">
+                                        {/* Hide Like Counts */}
+                                        <div className="setting-item">
+                                            <div className="setting-header">
+                                                <span className="setting-title">Hide like and view counts on this post</span>
+                                                <label className="toggle-switch">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={hideLikeCounts}
+                                                        onChange={(e) => setHideLikeCounts(e.target.checked)}
+                                                    />
+                                                    <span className="toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                            <p className="setting-description">
+                                                Only you will see the total number of likes and views on this post. You can change this later by going to the ··· menu at the top of the post. To hide like counts on other people's posts, go to your account settings.
+                                            </p>
+                                        </div>
+
+                                        {/* Turn Off Commenting */}
+                                        <div className="setting-item">
+                                            <div className="setting-header">
+                                                <span className="setting-title">Turn off commenting</span>
+                                                <label className="toggle-switch">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={turnOffCommenting}
+                                                        onChange={(e) => setTurnOffCommenting(e.target.checked)}
+                                                    />
+                                                    <span className="toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                            <p className="setting-description">
+                                                You can change this later by going to the ··· menu at the top of your post.
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
