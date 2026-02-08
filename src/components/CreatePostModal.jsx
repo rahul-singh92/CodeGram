@@ -25,11 +25,52 @@ function CreatePostModal({ open, onClose }) {
     //delete photo state
     const [showDeletePhotoBox, setShowDeletePhotoBox] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(null);
-
-
+    //Next button
+    const [showEditBox, setShowEditBox] = useState(false);
+    const [activeTab, setActiveTab] = useState("filters");
+    const [imageEdits, setImageEdits] = useState({});
 
 
     if (!open) return null;
+    
+    const getCurrentEdit = () => {
+        const id = images[activeIndex]?.id;
+        if (!id) return null;
+
+        return (
+            imageEdits[id] || {
+                filter: "Original",
+                brightness: 0,
+                contrast: 0,
+                fade: 0,
+                saturation: 0,
+                temperature: 0,
+                vignette: 0,
+                crop: {
+                    zoom: 1,
+                    x: 0,
+                    y: 0,
+                    aspect: "original",
+                },
+            }
+        );
+    };
+
+
+    const updateEdit = (field, value) => {
+        const id = images[activeIndex]?.id;
+        if (!id) return;
+
+        setImageEdits((prev) => ({
+            ...prev,
+            [id]: {
+                ...getCurrentEdit(),
+                [field]: value,
+            },
+        }));
+    };
+
+
 
     const CropSelectIcon = ({ size = 18 }) => (
         <svg
@@ -44,6 +85,71 @@ function CreatePostModal({ open, onClose }) {
             <path d="M10 20H4v-6a1 1 0 0 0-2 0v7a1 1 0 0 0 1 1h7a1 1 0 0 0 0-2ZM20.999 2H14a1 1 0 0 0 0 2h5.999v6a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1Z"></path>
         </svg>
     );
+
+    const getFilterStyle = (edit) => {
+        let baseFilter = "";
+
+        switch (edit.filter) {
+            case "Aden":
+                baseFilter = "contrast(0.9) saturate(1.2) brightness(1.1)";
+                break;
+            case "Clarendon":
+                baseFilter = "contrast(1.2) saturate(1.35)";
+                break;
+            case "Crema":
+                baseFilter = "contrast(0.9) saturate(1.1) brightness(1.05)";
+                break;
+            case "Gingham":
+                baseFilter = "contrast(0.95) saturate(0.9) brightness(1.05)";
+                break;
+            case "Juno":
+                baseFilter = "contrast(1.15) saturate(1.3)";
+                break;
+            case "Lark":
+                baseFilter = "contrast(1.05) saturate(1.2) brightness(1.05)";
+                break;
+            case "Ludwig":
+                baseFilter = "contrast(1.1) saturate(1.15)";
+                break;
+            case "Moon":
+                baseFilter = "grayscale(0.8) contrast(1.1) brightness(1.05)";
+                break;
+            case "Perpetua":
+                baseFilter = "contrast(1.05) saturate(1.1)";
+                break;
+            case "Reyes":
+                baseFilter = "contrast(0.9) saturate(0.85) brightness(1.1)";
+                break;
+            case "Slumber":
+                baseFilter = "contrast(0.9) saturate(0.8) brightness(1.05)";
+                break;
+            case "Original":
+            default:
+                baseFilter = "";
+                break;
+        }
+
+        const brightness = 1 + edit.brightness / 100;
+        const contrast = 1 + edit.contrast / 100;
+        const saturation = 1 + edit.saturation / 100;
+        const fade = edit.fade / 100;
+        const temperature = edit.temperature / 100;
+
+        // Build filter string - only add base filter if it exists
+        const filterParts = [];
+        if (baseFilter) filterParts.push(baseFilter);
+        filterParts.push(`brightness(${brightness})`);
+        filterParts.push(`contrast(${contrast})`);
+        filterParts.push(`saturate(${saturation})`);
+
+        return {
+            filter: filterParts.join(' '),
+            opacity: 1 - fade * 0.3,
+            transform: `scale(${1})`,
+            backgroundColor: temperature > 0 ? `rgba(255, 140, 0, ${temperature * 0.08})` : "",
+        };
+    };
+
     const ZoomIcon = ({ size = 18 }) => (
         <svg
             aria-label="Select zoom"
@@ -68,19 +174,41 @@ function CreatePostModal({ open, onClose }) {
 
         setImages((prev) => {
             const updated = [...prev, ...newFiles];
-
-            // auto open crop modal on first upload
-            if (prev.length === 0) {
-                setActiveIndex(0);
-                setShowCropBox(true);
-                setZoom(1);
-                setPos({ x: 0, y: 0 });
-                setAspectRatio("original");
-            }
-
+            if (prev.length === 0) setActiveIndex(0);
             return updated;
         });
+
+        setImageEdits((prev) => {
+            const updatedEdits = { ...prev };
+
+            newFiles.forEach((img) => {
+                updatedEdits[img.id] = {
+                    filter: "Original",
+                    brightness: 0,
+                    contrast: 0,
+                    fade: 0,
+                    saturation: 0,
+                    temperature: 0,
+                    vignette: 0,
+                    crop: {
+                        zoom: 1,
+                        x: 0,
+                        y: 0,
+                        aspect: "original",
+                    },
+                };
+            });
+
+            return updatedEdits;
+        });
+
+        setZoom(1);
+        setPos({ x: 0, y: 0 });
+        setAspectRatio("original");
+
+        setShowCropBox(true);
     };
+
 
     const handleDeletePhoto = () => {
         if (deleteIndex === null) return;
@@ -168,6 +296,7 @@ function CreatePostModal({ open, onClose }) {
         setShowGallery(false);
         setZoom(1);
         setPos({ x: 0, y: 0 });
+        setImageEdits({});
     };
 
 
@@ -187,6 +316,7 @@ function CreatePostModal({ open, onClose }) {
                     if (e.target.files.length > 0) {
                         handleAddImages(e.target.files);
                     }
+                    e.target.value = "";
                 }}
             />
 
@@ -227,7 +357,7 @@ function CreatePostModal({ open, onClose }) {
             {/* =======================
           CROP MODAL
       ======================= */}
-            {showCropBox && (
+            {showCropBox && !showEditBox && (
                 <div className="crop-modal">
                     {/* Header */}
                     <div className="crop-header">
@@ -239,6 +369,41 @@ function CreatePostModal({ open, onClose }) {
                         </button>
 
                         <h2>Crop</h2>
+
+                        <button
+                            className="crop-next-btn"
+                            onClick={() => {
+                                const id = images[activeIndex]?.id;
+                                if (!id) return;
+
+                                // Save current crop data for this image
+                                setImageEdits((prev) => ({
+                                    ...prev,
+                                    [id]: {
+                                        ...(prev[id] || {
+                                            filter: "Original",
+                                            brightness: 0,
+                                            contrast: 0,
+                                            fade: 0,
+                                            saturation: 0,
+                                            temperature: 0,
+                                            vignette: 0,
+                                        }),
+                                        crop: {
+                                            zoom,
+                                            x: pos.x,
+                                            y: pos.y,
+                                            aspect: aspectRatio,
+                                        },
+                                    },
+                                }));
+
+                                setShowEditBox(true);
+                            }}
+                        >
+                            Next
+                        </button>
+
                     </div>
 
                     <div className="createpost-divider"></div>
@@ -379,9 +544,20 @@ function CreatePostModal({ open, onClose }) {
                                             draggable
                                             onClick={() => {
                                                 setActiveIndex(index);
-                                                setZoom(1);
-                                                setPos({ x: 0, y: 0 });
+
+                                                const edit = imageEdits[images[index].id];
+
+                                                if (edit?.crop) {
+                                                    setZoom(edit.crop.zoom);
+                                                    setPos({ x: edit.crop.x, y: edit.crop.y });
+                                                    setAspectRatio(edit.crop.aspect);
+                                                } else {
+                                                    setZoom(1);
+                                                    setPos({ x: 0, y: 0 });
+                                                    setAspectRatio("original");
+                                                }
                                             }}
+
                                             onDragStart={() => setDraggedIndex(index)}
                                             onDragOver={(e) => e.preventDefault()}
                                             onDrop={() => handleReorder(index)}
@@ -418,6 +594,214 @@ function CreatePostModal({ open, onClose }) {
                 </div>
             )}
 
+            {/* Edit Box */}
+            {showCropBox && showEditBox && (
+                <div className="edit-modal">
+                    {/* Header */}
+                    <div className="edit-header">
+                        <button
+                            className="crop-back-btn"
+                            onClick={() => setShowEditBox(false)}
+                        >
+                            <ArrowLeft size={20} strokeWidth={1.5} />
+                        </button>
+
+                        <h2>Edit</h2>
+
+                        <button className="crop-next-btn">
+                            Next
+                        </button>
+                    </div>
+
+                    <div className="createpost-divider"></div>
+
+                    <div className="edit-body">
+                        {/* LEFT IMAGE PREVIEW */}
+                        <div className="edit-preview">
+                            {activeIndex > 0 && (
+                                <button
+                                    className="edit-arrow left"
+                                    onClick={() => setActiveIndex((prev) => prev - 1)}
+                                >
+                                    ‹
+                                </button>
+                            )}
+
+                            {activeIndex < images.length - 1 && (
+                                <button
+                                    className="edit-arrow right"
+                                    onClick={() => setActiveIndex((prev) => prev + 1)}
+                                >
+                                    ›
+                                </button>
+                            )}
+
+
+                            {images[activeIndex] && (() => {
+                                const currentEdit = getCurrentEdit() || {
+                                    filter: "Original",
+                                    brightness: 0,
+                                    contrast: 0,
+                                    fade: 0,
+                                    saturation: 0,
+                                    temperature: 0,
+                                    vignette: 0,
+                                    crop: { zoom: 1, x: 0, y: 0, aspect: "original" }
+                                };
+
+                                const cropAspect = currentEdit.crop?.aspect || 'original';
+
+                                return (
+                                    <div className={`edit-preview-wrapper ${cropAspect}`}>
+                                        <img
+                                            src={images[activeIndex].url}
+                                            alt="preview"
+                                            className="edit-preview-img"
+                                            draggable={false}
+                                            style={{
+                                                ...getFilterStyle(currentEdit),
+                                                transform: `translate(calc(-50% + ${currentEdit.crop?.x || 0}px), calc(-50% + ${currentEdit.crop?.y || 0}px)) scale(${currentEdit.crop?.zoom || 1})`,
+                                                position: "absolute",
+                                                top: "50%",
+                                                left: "50%",
+                                                objectFit: "contain",
+                                            }}
+                                        />
+                                    </div>
+                                );
+                            })()}
+
+
+                            {/* DOTS */}
+                            <div className="edit-dots">
+                                {images.map((_, i) => (
+                                    <span
+                                        key={i}
+                                        className={`edit-dot ${i === activeIndex ? "active" : ""}`}
+                                    ></span>
+                                ))}
+                            </div>
+
+                        </div>
+
+                        {/* RIGHT PANEL */}
+                        <div className="edit-panel">
+                            <div className="edit-tabs">
+                                <button
+                                    className={`edit-tab ${activeTab === "filters" ? "active" : ""}`}
+                                    onClick={() => setActiveTab("filters")}
+                                >
+                                    Filters
+                                </button>
+
+                                <button
+                                    className={`edit-tab ${activeTab === "adjustments" ? "active" : ""}`}
+                                    onClick={() => setActiveTab("adjustments")}
+                                >
+                                    Adjustments
+                                </button>
+                            </div>
+
+
+                            <div className="edit-divider"></div>
+
+                            {/* FILTER GRID */}
+                            {activeTab === "filters" && (
+                                <div className="filters-grid">
+                                    {[
+                                        "Original",
+                                        "Aden",
+                                        "Clarendon",
+                                        "Crema",
+                                        "Gingham",
+                                        "Juno",
+                                        "Lark",
+                                        "Ludwig",
+                                        "Moon",
+                                        "Perpetua",
+                                        "Reyes",
+                                        "Slumber",
+                                    ].map((filter) => {
+                                        const currentEdit = getCurrentEdit();
+                                        
+                                        return (
+                                            <div
+                                                key={filter}
+                                                className={`filter-card ${currentEdit?.filter === filter ? "active" : ""}`}
+                                                onClick={() => updateEdit("filter", filter)}
+                                            >
+                                                <div className="filter-preview">
+                                                    <img
+                                                        src={images[activeIndex]?.url}
+                                                        alt="filter-preview"
+                                                        style={{
+                                                            width: "100%",
+                                                            height: "100%",
+                                                            objectFit: "cover",
+                                                            ...getFilterStyle({ 
+                                                                filter,
+                                                                brightness: 0,
+                                                                contrast: 0,
+                                                                fade: 0,
+                                                                saturation: 0,
+                                                                temperature: 0,
+                                                            }),
+                                                        }}
+                                                    />
+                                                </div>
+                                                <p>{filter}</p>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                            {activeTab === "adjustments" && (
+                                <div className="adjustments-box">
+                                    {[
+                                        { key: "brightness", label: "Brightness" },
+                                        { key: "contrast", label: "Contrast" },
+                                        { key: "fade", label: "Fade" },
+                                        { key: "saturation", label: "Saturation" },
+                                        { key: "temperature", label: "Temperature" },
+                                        { key: "vignette", label: "Vignette", min: 0, max: 100 },
+                                    ].map((adj) => {
+                                        const value = getCurrentEdit()?.[adj.key] ?? 0;
+
+                                        return (
+                                            <div key={adj.key} className="adjustment-row">
+                                                <div className="adjustment-top">
+                                                    <p>{adj.label}</p>
+
+                                                    {value !== 0 && (
+                                                        <button
+                                                            className="adjust-reset"
+                                                            onClick={() => updateEdit(adj.key, 0)}
+                                                        >
+                                                            Reset
+                                                        </button>
+                                                    )}
+                                                </div>
+
+                                                <input
+                                                    type="range"
+                                                    min={adj.min ?? -100}
+                                                    max={adj.max ?? 100}
+                                                    value={value}
+                                                    onChange={(e) => updateEdit(adj.key, parseInt(e.target.value))}
+                                                    className="adjust-slider"
+                                                />
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
             {/* =======================
           DISCARD MODAL
       ======================= */}
@@ -427,7 +811,7 @@ function CreatePostModal({ open, onClose }) {
                         <h3 className="discard-title">Discard post?</h3>
 
                         <p className="discard-subtitle">
-                            If you leave, your edits won’t be saved.
+                            If you leave, your edits won't be saved.
                         </p>
 
                         <div className="discard-divider"></div>

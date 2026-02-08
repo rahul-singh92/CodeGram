@@ -1200,6 +1200,318 @@
   pointer-events: auto;
 }
 
+.crop-next-btn {
+  position: absolute;
+  right: 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #60a5fa; /* light blue */
+}
+
+.crop-next-btn:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+  Edit Modal
+=========================== */
+.edit-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 900px;
+  height: 620px;
+  background: rgb(33, 35, 40);
+  border-radius: 16px;
+  overflow: hidden;
+
+  z-index: 2200;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 18px;
+}
+
+.edit-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.edit-body {
+  flex: 1;
+  display: flex;
+  height: 100%;
+}
+
+.edit-preview {
+  flex: 1;
+  position: relative;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.edit-preview-wrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+/* ASPECT RATIO CLASSES FOR EDIT PREVIEW */
+.edit-preview-wrapper.original {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-preview-wrapper.square {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: black;
+}
+
+.edit-preview-wrapper.portrait {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: black;
+}
+
+.edit-preview-wrapper.landscape {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: black;
+}
+
+.edit-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.edit-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 200; /* IMPORTANT */
+}
+
+.edit-arrow.left {
+  left: 14px;
+}
+
+.edit-arrow.right {
+  right: 14px;
+}
+
+.edit-arrow:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.edit-dots {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 100;
+}
+
+.edit-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.edit-dot.active {
+  background: #60a5fa;
+}
+
+.edit-panel {
+  width: 320px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgb(20, 22, 26);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.edit-tabs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.edit-tab {
+  flex: 1;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: rgba(96, 165, 250, 0.5);
+  transition: 0.2s;
+}
+
+.edit-tab.active {
+  color: #60a5fa;
+  border-bottom: 2px solid #60a5fa;
+}
+
+.edit-tab:not(.active) {
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.filters-grid,
+.adjustments-box {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.filter-card {
+  cursor: pointer;
+  text-align: center;
+  font-size: 12px;
+  color: white;
+  opacity: 0.6;
+  transition: 0.2s;
+}
+.filter-card.active {
+  opacity: 1;
+}
+
+.filter-preview {
+  width: 100%;
+  height: 70px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 6px;
+  border: 2px solid transparent;
+}
+
+.filter-card.active .filter-preview {
+  border: 2px solid #60a5fa;
+}
+
+.adjustment-row {
+  margin-bottom: 18px;
+}
+
+.adjustment-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.adjust-reset {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #60a5fa;
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.adjustment-row:hover .adjust-reset {
+  opacity: 1;
+}
+
+.adjust-reset:hover {
+  text-decoration: underline;
+}
+
+.adjust-slider {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.25);
+  cursor: pointer;
+}
+
+.adjust-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+}
+
 
 /* ===========================
    DISCARD MODAL
