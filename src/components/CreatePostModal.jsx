@@ -16,8 +16,8 @@ function CreatePostModal({ open, onClose }) {
     const [showCropOptions, setShowCropOptions] = useState(false);
     const [aspectRatio, setAspectRatio] = useState("original");
     //Zoom State
-    const [zoom, setZoom] = useState(1.2);
-const [showZoomSlider, setShowZoomSlider] = useState(false);
+    const [zoom, setZoom] = useState(1);
+    const [showZoomSlider, setShowZoomSlider] = useState(false);
 
 
     if (!open) return null;
@@ -56,6 +56,9 @@ const [showZoomSlider, setShowZoomSlider] = useState(false);
 
         const url = URL.createObjectURL(file);
         setSelectedImage(url);
+        setZoom(1);
+        setPos({ x: 0, y: 0 });
+        setAspectRatio("original");
         setShowCropBox(true);
     };
 
@@ -199,92 +202,92 @@ const [showZoomSlider, setShowZoomSlider] = useState(false);
 
 
                         <div className="crop-controls">
-  {/* Crop Options */}
-  <div className="crop-options-wrapper">
-    <button
-      className="crop-options-btn"
-      onClick={(e) => {
-        e.stopPropagation();
-        setShowCropOptions(!showCropOptions);
-        setShowZoomSlider(false);
-      }}
-    >
-      <CropSelectIcon />
-    </button>
+                            {/* Crop Options */}
+                            <div className="crop-options-wrapper">
+                                <button
+                                    className="crop-options-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowCropOptions(!showCropOptions);
+                                        setShowZoomSlider(false);
+                                    }}
+                                >
+                                    <CropSelectIcon />
+                                </button>
 
-    {showCropOptions && (
-      <div className="crop-options-menu">
-        <div
-          className="crop-option"
-          onClick={() => {
-            setAspectRatio("original");
-            setShowCropOptions(false);
-          }}
-        >
-          Original
-        </div>
+                                {showCropOptions && (
+                                    <div className="crop-options-menu">
+                                        <div
+                                            className="crop-option"
+                                            onClick={() => {
+                                                setAspectRatio("original");
+                                                setShowCropOptions(false);
+                                            }}
+                                        >
+                                            Original
+                                        </div>
 
-        <div
-          className="crop-option"
-          onClick={() => {
-            setAspectRatio("square");
-            setShowCropOptions(false);
-          }}
-        >
-          1:1
-        </div>
+                                        <div
+                                            className="crop-option"
+                                            onClick={() => {
+                                                setAspectRatio("square");
+                                                setShowCropOptions(false);
+                                            }}
+                                        >
+                                            1:1
+                                        </div>
 
-        <div
-          className="crop-option"
-          onClick={() => {
-            setAspectRatio("portrait");
-            setShowCropOptions(false);
-          }}
-        >
-          4:5
-        </div>
+                                        <div
+                                            className="crop-option"
+                                            onClick={() => {
+                                                setAspectRatio("portrait");
+                                                setShowCropOptions(false);
+                                            }}
+                                        >
+                                            4:5
+                                        </div>
 
-        <div
-          className="crop-option"
-          onClick={() => {
-            setAspectRatio("landscape");
-            setShowCropOptions(false);
-          }}
-        >
-          16:9
-        </div>
-      </div>
-    )}
-  </div>
+                                        <div
+                                            className="crop-option"
+                                            onClick={() => {
+                                                setAspectRatio("landscape");
+                                                setShowCropOptions(false);
+                                            }}
+                                        >
+                                            16:9
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
-  {/* Zoom */}
-  <div className="zoom-wrapper">
-    <button
-      className="crop-options-btn"
-      onClick={(e) => {
-        e.stopPropagation();
-        setShowZoomSlider(!showZoomSlider);
-        setShowCropOptions(false);
-      }}
-    >
-      <ZoomIcon />
-    </button>
+                            {/* Zoom */}
+                            <div className="zoom-wrapper">
+                                <button
+                                    className="crop-options-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowZoomSlider(!showZoomSlider);
+                                        setShowCropOptions(false);
+                                    }}
+                                >
+                                    <ZoomIcon />
+                                </button>
 
-    {showZoomSlider && (
-      <div className="zoom-slider-box">
-        <input
-          type="range"
-          min="0.8"
-          max="2"
-          step="0.05"
-          value={zoom}
-          onChange={(e) => setZoom(parseFloat(e.target.value))}
-          className="zoom-slider"
-        />
-      </div>
-    )}
-  </div>
-</div>
+                                {showZoomSlider && (
+                                    <div className="zoom-slider-box">
+                                        <input
+                                            type="range"
+                                            min="1"
+                                            max="2"
+                                            step="0.05"
+                                            value={zoom}
+                                            onChange={(e) => setZoom(parseFloat(e.target.value))}
+                                            className="zoom-slider"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
 
                     </div>
                 </div>
