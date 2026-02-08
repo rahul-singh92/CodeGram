@@ -2,6 +2,7 @@ import { X, ArrowLeft, SmileIcon } from "lucide-react";
 import { ReelsIcon } from "./icons/AppIcons";
 import { useRef, useState } from "react";
 import { useUser } from "../context/UserContext";
+import { supabase } from "../lib/supabase";
 
 function CreatePostModal({ open, onClose }) {
     const fileInputRef = useRef(null);
@@ -38,10 +39,12 @@ function CreatePostModal({ open, onClose }) {
     const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
     const [hideLikeCounts, setHideLikeCounts] = useState(false);
     const [turnOffCommenting, setTurnOffCommenting] = useState(false);
+    const [isSharing, setIsSharing] = useState(false);
+
 
 
     if (!open) return null;
-    
+
     const getCurrentEdit = () => {
         const id = images[activeIndex]?.id;
         if (!id) return null;
@@ -298,21 +301,119 @@ function CreatePostModal({ open, onClose }) {
 
     // ---------- CLOSE EVERYTHING ----------
     const resetAll = () => {
-        setImages([]);
-        setActiveIndex(0);
-        setShowCropBox(false);
-        setShowDiscardBox(false);
-        setShowGallery(false);
-        setZoom(1);
-        setPos({ x: 0, y: 0 });
-        setImageEdits({});
-    };
+  setImages([]);
+  setActiveIndex(0);
+
+  setShowCropBox(false);
+  setShowEditBox(false);
+  setShowCaptionBox(false);
+
+  setShowDiscardBox(false);
+  setShowGallery(false);
+
+  setZoom(1);
+  setPos({ x: 0, y: 0 });
+
+  setImageEdits({});
+
+  // ✅ reset caption + settings
+  setCaption("");
+  setShowEmojiPicker(false);
+  setShowAdvancedSettings(false);
+  setHideLikeCounts(false);
+  setTurnOffCommenting(false);
+
+  // reset crop options
+  setAspectRatio("original");
+  setShowCropOptions(false);
+  setShowZoomSlider(false);
+
+  // reset delete popup states
+  setShowDeletePhotoBox(false);
+  setDeleteIndex(null);
+  setDraggedIndex(null);
+};
+
+
+    const handleSharePost = async () => {
+    try {
+        setIsSharing(true);
+
+        if (!user) throw new Error("User not logged in!");
+        if (images.length === 0) throw new Error("No images selected!");
+
+        // 1) Create post
+        const { data: postData, error: postError } = await supabase
+            .from("posts")
+            .insert([
+                {
+                    user_id: user.id,
+                    caption,
+                    hide_like_counts: hideLikeCounts,
+                    turn_off_commenting: turnOffCommenting,
+                },
+            ])
+            .select()
+            .single();
+
+        if (postError) throw postError;
+
+        const postId = postData.id;
+
+        // 2) Upload each image
+        for (let i = 0; i < images.length; i++) {
+            const img = images[i];
+
+            const fileExt = img.file.name.split(".").pop();
+
+            // IMPORTANT: file path must start with user.id for RLS policy
+            const filePath = `${user.id}/${postId}/${crypto.randomUUID()}.${fileExt}`;
+
+            // Upload to storage bucket
+            const { error: uploadError } = await supabase.storage
+                .from("posts")
+                .upload(filePath, img.file);
+
+            if (uploadError) throw uploadError;
+
+            // Insert into post_images table
+            const { error: imgInsertError } = await supabase
+                .from("post_images")
+                .insert([
+                    {
+                        post_id: postId,
+                        image_path: filePath, // ✅ store filePath only
+                        order_index: i,
+                        edits: imageEdits[img.id] || null,
+                    },
+                ]);
+
+            if (imgInsertError) throw imgInsertError;
+        }
+
+        // success
+        resetAll();
+        onClose();
+    } catch (err) {
+        console.error("Error sharing post:", err);
+        alert(err.message);
+    } finally {
+        setIsSharing(false);
+    }
+};
 
 
     return (
         <>
             {/* Overlay */}
-            <div className="createpost-overlay" onClick={() => setShowDiscardBox(true)}></div>
+            <div
+                className="createpost-overlay"
+                onClick={() => {
+                    if (isSharing) return;
+                    setShowDiscardBox(true);
+                }}
+            ></div>
+
 
             {/* Hidden File Input */}
             <input
@@ -340,11 +441,20 @@ function CreatePostModal({ open, onClose }) {
                 >
                     {/* Header */}
                     <div className="createpost-header">
-                        <h2>Create new post</h2>
+                        <h2>{isSharing ? "Sharing Post..." : "Create new post"}</h2>
 
-                        <button className="createpost-close-btn" onClick={onClose}>
+                        <button
+                            className="createpost-close-btn"
+                            onClick={() => {
+                                if (isSharing) return;
+                                resetAll();
+                                onClose();
+                            }}
+                            disabled={isSharing}
+                        >
                             <X size={20} strokeWidth={1.5} />
                         </button>
+
                     </div>
 
                     <div className="createpost-divider"></div>
@@ -732,7 +842,7 @@ function CreatePostModal({ open, onClose }) {
                                         "Slumber",
                                     ].map((filter) => {
                                         const currentEdit = getCurrentEdit();
-                                        
+
                                         return (
                                             <div
                                                 key={filter}
@@ -747,7 +857,7 @@ function CreatePostModal({ open, onClose }) {
                                                             width: "100%",
                                                             height: "100%",
                                                             objectFit: "cover",
-                                                            ...getFilterStyle({ 
+                                                            ...getFilterStyle({
                                                                 filter,
                                                                 brightness: 0,
                                                                 contrast: 0,
@@ -815,6 +925,31 @@ function CreatePostModal({ open, onClose }) {
       ======================= */}
             {showCropBox && showEditBox && showCaptionBox && (
                 <div className="caption-modal">
+                    {/* LOADER OVERLAY */}
+                    {isSharing && (
+  <div className="sharing-popup-overlay">
+    <div className="sharing-popup-box">
+
+      <div className="sharing-popup-header">
+        Sharing your post...
+      </div>
+
+      <div className="sharing-popup-divider"></div>
+
+      <div className="sharing-popup-body">
+
+        <div className="loader-brand">
+          <h1 className="loader-title brand-gradient">CodeGram</h1>
+        </div>
+
+        <div className="loader-spinner"></div>
+
+        <p className="loader-text">Uploading photos...</p>
+      </div>
+    </div>
+  </div>
+)}
+
                     {/* Header */}
                     <div className="caption-header">
                         <button
@@ -826,12 +961,15 @@ function CreatePostModal({ open, onClose }) {
 
                         <h2>Create new post</h2>
 
-                        <button className="crop-next-btn" onClick={() => {
-                            // Handle share logic here
-                            console.log("Share post", { images, imageEdits, caption });
-                        }}>
-                            Share
+                        <button
+                            className="crop-next-btn"
+                            onClick={handleSharePost}
+                            disabled={isSharing}
+                        >
+                            {isSharing ? "Sharing..." : "Share"}
                         </button>
+
+
                     </div>
 
                     <div className="createpost-divider"></div>
@@ -907,9 +1045,9 @@ function CreatePostModal({ open, onClose }) {
                             {/* User Info */}
                             <div className="caption-user-info">
                                 {profile?.avatar_url ? (
-                                    <img 
-                                        src={profile.avatar_url} 
-                                        alt="avatar" 
+                                    <img
+                                        src={profile.avatar_url}
+                                        alt="avatar"
                                         className="caption-avatar"
                                     />
                                 ) : (
@@ -935,10 +1073,10 @@ function CreatePostModal({ open, onClose }) {
                                     }}
                                     maxLength={2200}
                                 />
-                                
+
                                 {/* Character count and emoji */}
                                 <div className="caption-footer">
-                                    <button 
+                                    <button
                                         className="emoji-btn"
                                         onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                                     >
@@ -970,7 +1108,7 @@ function CreatePostModal({ open, onClose }) {
 
                             {/* Advanced Settings */}
                             <div className="advanced-settings-section">
-                                <button 
+                                <button
                                     className="advanced-settings-toggle"
                                     onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
                                 >
