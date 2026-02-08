@@ -5,7 +5,6 @@ import { useRef, useState } from "react";
 function CreatePostModal({ open, onClose }) {
     const fileInputRef = useRef(null);
 
-    const [selectedImage, setSelectedImage] = useState(null);
     const [showCropBox, setShowCropBox] = useState(false);
     const [showDiscardBox, setShowDiscardBox] = useState(false);
     //drag states
@@ -18,6 +17,16 @@ function CreatePostModal({ open, onClose }) {
     //Zoom State
     const [zoom, setZoom] = useState(1);
     const [showZoomSlider, setShowZoomSlider] = useState(false);
+    //Multiple image select
+    const [images, setImages] = useState([]); // {id, file, url}
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [showGallery, setShowGallery] = useState(false);
+    const [draggedIndex, setDraggedIndex] = useState(null);
+    //delete photo state
+    const [showDeletePhotoBox, setShowDeletePhotoBox] = useState(false);
+    const [deleteIndex, setDeleteIndex] = useState(null);
+
+
 
 
     if (!open) return null;
@@ -49,17 +58,68 @@ function CreatePostModal({ open, onClose }) {
         </svg>
     );
 
-    // ---------- HANDLE FILE PICK ----------
-    const handleFilePick = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    // Handle multiple file picker
+    const handleAddImages = (files) => {
+        const newFiles = Array.from(files).map((file) => ({
+            id: crypto.randomUUID(),
+            file,
+            url: URL.createObjectURL(file),
+        }));
 
-        const url = URL.createObjectURL(file);
-        setSelectedImage(url);
-        setZoom(1);
-        setPos({ x: 0, y: 0 });
-        setAspectRatio("original");
-        setShowCropBox(true);
+        setImages((prev) => {
+            const updated = [...prev, ...newFiles];
+
+            // auto open crop modal on first upload
+            if (prev.length === 0) {
+                setActiveIndex(0);
+                setShowCropBox(true);
+                setZoom(1);
+                setPos({ x: 0, y: 0 });
+                setAspectRatio("original");
+            }
+
+            return updated;
+        });
+    };
+
+    const handleDeletePhoto = () => {
+        if (deleteIndex === null) return;
+
+        const updated = images.filter((_, i) => i !== deleteIndex);
+
+        setImages(updated);
+
+        if (updated.length === 0) {
+            // if no images left -> close everything
+            resetAll();
+            onClose();
+        } else {
+            // adjust active index
+            if (activeIndex >= updated.length) {
+                setActiveIndex(updated.length - 1);
+            }
+        }
+
+        setShowDeletePhotoBox(false);
+        setDeleteIndex(null);
+    };
+
+
+    const handleReorder = (dropIndex) => {
+        if (draggedIndex === null) return;
+
+        setImages((prev) => {
+            const updated = [...prev];
+            const draggedItem = updated[draggedIndex];
+
+            updated.splice(draggedIndex, 1);
+            updated.splice(dropIndex, 0, draggedItem);
+
+            return updated;
+        });
+
+        setActiveIndex(dropIndex);
+        setDraggedIndex(null);
     };
 
     // ---------- OPEN FILE PICKER ----------
@@ -70,14 +130,11 @@ function CreatePostModal({ open, onClose }) {
     // ---------- DROP IMAGE ----------
     const handleDrop = (e) => {
         e.preventDefault();
+        if (!e.dataTransfer.files.length) return;
 
-        const file = e.dataTransfer.files[0];
-        if (!file) return;
-
-        const url = URL.createObjectURL(file);
-        setSelectedImage(url);
-        setShowCropBox(true);
+        handleAddImages(e.dataTransfer.files);
     };
+
 
     // ---------- DRAG IMAGE ----------
     const handleMouseDown = (e) => {
@@ -104,11 +161,15 @@ function CreatePostModal({ open, onClose }) {
 
     // ---------- CLOSE EVERYTHING ----------
     const resetAll = () => {
-        setSelectedImage(null);
+        setImages([]);
+        setActiveIndex(0);
         setShowCropBox(false);
         setShowDiscardBox(false);
+        setShowGallery(false);
+        setZoom(1);
         setPos({ x: 0, y: 0 });
     };
+
 
     return (
         <>
@@ -120,8 +181,13 @@ function CreatePostModal({ open, onClose }) {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
+                multiple
                 style={{ display: "none" }}
-                onChange={handleFilePick}
+                onChange={(e) => {
+                    if (e.target.files.length > 0) {
+                        handleAddImages(e.target.files);
+                    }
+                }}
             />
 
             {/* =======================
@@ -189,7 +255,7 @@ function CreatePostModal({ open, onClose }) {
                             onMouseLeave={handleMouseUp}
                         >
                             <img
-                                src={selectedImage}
+                                src={images[activeIndex]?.url}
                                 alt="Selected"
                                 draggable={false}
                                 className="crop-image"
@@ -288,6 +354,65 @@ function CreatePostModal({ open, onClose }) {
                                 )}
                             </div>
                         </div>
+                        <div className="media-gallery-btn" onClick={() => setShowGallery(!showGallery)}>
+                            <svg
+                                aria-label="Open media gallery"
+                                fill="currentColor"
+                                height="16"
+                                role="img"
+                                viewBox="0 0 24 24"
+                                width="16"
+                            >
+                                <path
+                                    d="M19 15V5a4.004 4.004 0 0 0-4-4H5a4.004 4.004 0 0 0-4 4v10a4.004 4.004 0 0 0 4 4h10a4.004 4.004 0 0 0 4-4ZM3 15V5a2.002 2.002 0 0 1 2-2h10a2.002 2.002 0 0 1 2 2v10a2.002 2.002 0 0 1-2 2H5a2.002 2.002 0 0 1-2-2Zm18.862-8.773A.501.501 0 0 0 21 6.57v8.431a6 6 0 0 1-6 6H6.58a.504.504 0 0 0-.35.863A3.944 3.944 0 0 0 9 23h6a8 8 0 0 0 8-8V9a3.95 3.95 0 0 0-1.138-2.773Z"
+                                    fillRule="evenodd"
+                                ></path>
+                            </svg>
+                        </div>
+                        {showGallery && (
+                            <div className="media-gallery-popup" onClick={(e) => e.stopPropagation()}>
+                                <div className="media-gallery-grid">
+                                    {images.map((img, index) => (
+                                        <div
+                                            key={img.id}
+                                            className={`media-thumb ${index === activeIndex ? "active" : ""}`}
+                                            draggable
+                                            onClick={() => {
+                                                setActiveIndex(index);
+                                                setZoom(1);
+                                                setPos({ x: 0, y: 0 });
+                                            }}
+                                            onDragStart={() => setDraggedIndex(index)}
+                                            onDragOver={(e) => e.preventDefault()}
+                                            onDrop={() => handleReorder(index)}
+                                        >
+                                            <img src={img.url} alt="thumb" />
+
+                                            <button
+                                                className="thumb-remove"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setDeleteIndex(index);
+                                                    setShowDeletePhotoBox(true);
+                                                }}
+                                            >
+                                                ✕
+                                            </button>
+
+                                        </div>
+                                    ))}
+
+                                    {/* ADD MORE */}
+                                    <div
+                                        className="media-thumb add"
+                                        onClick={() => fileInputRef.current.click()}
+                                    >
+                                        +
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
 
                     </div>
                 </div>
@@ -328,6 +453,40 @@ function CreatePostModal({ open, onClose }) {
                     </div>
                 </div>
             )}
+
+            {showDeletePhotoBox && (
+                <div className="discard-modal">
+                    <div className="discard-box">
+                        <h3 className="discard-title">Discard photo?</h3>
+
+                        <p className="discard-subtitle">
+                            This will remove the photo from your post.
+                        </p>
+
+                        <div className="discard-divider"></div>
+
+                        <div
+                            className="discard-action discard-red"
+                            onClick={handleDeletePhoto}
+                        >
+                            Delete
+                        </div>
+
+                        <div className="discard-divider"></div>
+
+                        <div
+                            className="discard-action"
+                            onClick={() => {
+                                setShowDeletePhotoBox(false);
+                                setDeleteIndex(null);
+                            }}
+                        >
+                            Cancel
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </>
     );
 }
