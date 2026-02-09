@@ -301,106 +301,284 @@ function CreatePostModal({ open, onClose }) {
 
     // ---------- CLOSE EVERYTHING ----------
     const resetAll = () => {
-  setImages([]);
-  setActiveIndex(0);
+        setImages([]);
+        setActiveIndex(0);
 
-  setShowCropBox(false);
-  setShowEditBox(false);
-  setShowCaptionBox(false);
+        setShowCropBox(false);
+        setShowEditBox(false);
+        setShowCaptionBox(false);
 
-  setShowDiscardBox(false);
-  setShowGallery(false);
+        setShowDiscardBox(false);
+        setShowGallery(false);
 
-  setZoom(1);
-  setPos({ x: 0, y: 0 });
+        setZoom(1);
+        setPos({ x: 0, y: 0 });
 
-  setImageEdits({});
+        setImageEdits({});
 
-  // ✅ reset caption + settings
-  setCaption("");
-  setShowEmojiPicker(false);
-  setShowAdvancedSettings(false);
-  setHideLikeCounts(false);
-  setTurnOffCommenting(false);
+        // ✅ reset caption + settings
+        setCaption("");
+        setShowEmojiPicker(false);
+        setShowAdvancedSettings(false);
+        setHideLikeCounts(false);
+        setTurnOffCommenting(false);
 
-  // reset crop options
-  setAspectRatio("original");
-  setShowCropOptions(false);
-  setShowZoomSlider(false);
+        // reset crop options
+        setAspectRatio("original");
+        setShowCropOptions(false);
+        setShowZoomSlider(false);
 
-  // reset delete popup states
-  setShowDeletePhotoBox(false);
-  setDeleteIndex(null);
-  setDraggedIndex(null);
-};
+        // reset delete popup states
+        setShowDeletePhotoBox(false);
+        setDeleteIndex(null);
+        setDraggedIndex(null);
+    };
 
+    // Function to process image with all filters, adjustments, and crop
+    const processImageWithEdits = async (imageUrl, edits) => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            
+            img.onload = () => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Get crop settings
+                    const crop = edits?.crop || { zoom: 1, x: 0, y: 0, aspect: "original" };
+                    
+                    // Calculate canvas dimensions based on aspect ratio
+                    let canvasWidth, canvasHeight;
+                    
+                    switch (crop.aspect) {
+                        case "square":
+                            canvasWidth = canvasHeight = Math.min(img.width, img.height);
+                            break;
+                        case "portrait":
+                            canvasWidth = img.width;
+                            canvasHeight = (img.width * 5) / 4;
+                            break;
+                        case "landscape":
+                            canvasWidth = img.width;
+                            canvasHeight = (img.width * 9) / 16;
+                            break;
+                        case "original":
+                        default:
+                            canvasWidth = img.width;
+                            canvasHeight = img.height;
+                            break;
+                    }
+
+                    canvas.width = canvasWidth;
+                    canvas.height = canvasHeight;
+
+                    // Apply brightness, contrast, saturation, fade adjustments
+                    const brightness = 1 + (edits?.brightness || 0) / 100;
+                    const contrast = 1 + (edits?.contrast || 0) / 100;
+                    const saturation = 1 + (edits?.saturation || 0) / 100;
+                    const fade = (edits?.fade || 0) / 100;
+
+                    // Build filter string with selected filter + adjustments
+                    let baseFilter = "";
+                    switch (edits?.filter) {
+                        case "Aden":
+                            baseFilter = "contrast(0.9) saturate(1.2) brightness(1.1)";
+                            break;
+                        case "Clarendon":
+                            baseFilter = "contrast(1.2) saturate(1.35)";
+                            break;
+                        case "Crema":
+                            baseFilter = "contrast(0.9) saturate(1.1) brightness(1.05)";
+                            break;
+                        case "Gingham":
+                            baseFilter = "contrast(0.95) saturate(0.9) brightness(1.05)";
+                            break;
+                        case "Juno":
+                            baseFilter = "contrast(1.15) saturate(1.3)";
+                            break;
+                        case "Lark":
+                            baseFilter = "contrast(1.05) saturate(1.2) brightness(1.05)";
+                            break;
+                        case "Ludwig":
+                            baseFilter = "contrast(1.1) saturate(1.15)";
+                            break;
+                        case "Moon":
+                            baseFilter = "grayscale(0.8) contrast(1.1) brightness(1.05)";
+                            break;
+                        case "Perpetua":
+                            baseFilter = "contrast(1.05) saturate(1.1)";
+                            break;
+                        case "Reyes":
+                            baseFilter = "contrast(0.9) saturate(0.85) brightness(1.1)";
+                            break;
+                        case "Slumber":
+                            baseFilter = "contrast(0.9) saturate(0.8) brightness(1.05)";
+                            break;
+                        case "Original":
+                        default:
+                            baseFilter = "";
+                            break;
+                    }
+
+                    const filterParts = [];
+                    if (baseFilter) filterParts.push(baseFilter);
+                    filterParts.push(`brightness(${brightness})`);
+                    filterParts.push(`contrast(${contrast})`);
+                    filterParts.push(`saturate(${saturation})`);
+
+                    ctx.filter = filterParts.join(' ');
+
+                    // Apply fade (opacity)
+                    ctx.globalAlpha = 1 - fade * 0.3;
+
+                    // Calculate zoom and position
+                    const zoom = crop.zoom || 1;
+                    const offsetX = crop.x || 0;
+                    const offsetY = crop.y || 0;
+
+                    // Calculate source dimensions (cropped area from original image)
+                    const sourceWidth = canvasWidth / zoom;
+                    const sourceHeight = canvasHeight / zoom;
+
+                    // Calculate source position (center of image + offset)
+                    const sourceX = (img.width - sourceWidth) / 2 - offsetX / zoom;
+                    const sourceY = (img.height - sourceHeight) / 2 - offsetY / zoom;
+
+                    // Draw the cropped and zoomed image
+                    ctx.drawImage(
+                        img,
+                        sourceX,
+                        sourceY,
+                        sourceWidth,
+                        sourceHeight,
+                        0,
+                        0,
+                        canvasWidth,
+                        canvasHeight
+                    );
+
+                    // Apply temperature (warm/cool overlay)
+                    const temperature = (edits?.temperature || 0) / 100;
+                    if (temperature !== 0) {
+                        ctx.globalAlpha = Math.abs(temperature) * 0.08;
+                        ctx.fillStyle = temperature > 0 ? 'rgba(255, 140, 0, 1)' : 'rgba(0, 140, 255, 1)';
+                        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+                    }
+
+                    // Apply vignette
+                    const vignette = (edits?.vignette || 0) / 100;
+                    if (vignette > 0) {
+                        const gradient = ctx.createRadialGradient(
+                            canvasWidth / 2,
+                            canvasHeight / 2,
+                            0,
+                            canvasWidth / 2,
+                            canvasHeight / 2,
+                            Math.max(canvasWidth, canvasHeight) / 2
+                        );
+                        gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                        gradient.addColorStop(0.7, 'rgba(0, 0, 0, 0)');
+                        gradient.addColorStop(1, `rgba(0, 0, 0, ${vignette * 0.8})`);
+
+                        ctx.globalAlpha = 1;
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+                    }
+
+                    // Convert canvas to blob
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            resolve(blob);
+                        } else {
+                            reject(new Error("Failed to create image blob"));
+                        }
+                    }, 'image/jpeg', 0.95);
+
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            img.onerror = () => {
+                reject(new Error("Failed to load image"));
+            };
+
+            img.src = imageUrl;
+        });
+    };
 
     const handleSharePost = async () => {
-    try {
-        setIsSharing(true);
+        try {
+            setIsSharing(true);
 
-        if (!user) throw new Error("User not logged in!");
-        if (images.length === 0) throw new Error("No images selected!");
+            if (!user) throw new Error("User not logged in!");
+            if (images.length === 0) throw new Error("No images selected!");
 
-        // 1) Create post
-        const { data: postData, error: postError } = await supabase
-            .from("posts")
-            .insert([
-                {
-                    user_id: user.id,
-                    caption,
-                    hide_like_counts: hideLikeCounts,
-                    turn_off_commenting: turnOffCommenting,
-                },
-            ])
-            .select()
-            .single();
-
-        if (postError) throw postError;
-
-        const postId = postData.id;
-
-        // 2) Upload each image
-        for (let i = 0; i < images.length; i++) {
-            const img = images[i];
-
-            const fileExt = img.file.name.split(".").pop();
-
-            // IMPORTANT: file path must start with user.id for RLS policy
-            const filePath = `${user.id}/${postId}/${crypto.randomUUID()}.${fileExt}`;
-
-            // Upload to storage bucket
-            const { error: uploadError } = await supabase.storage
+            // 1) Create post
+            const { data: postData, error: postError } = await supabase
                 .from("posts")
-                .upload(filePath, img.file);
-
-            if (uploadError) throw uploadError;
-
-            // Insert into post_images table
-            const { error: imgInsertError } = await supabase
-                .from("post_images")
                 .insert([
                     {
-                        post_id: postId,
-                        image_path: filePath, // ✅ store filePath only
-                        order_index: i,
-                        edits: imageEdits[img.id] || null,
+                        user_id: user.id,
+                        caption,
+                        hide_like_counts: hideLikeCounts,
+                        turn_off_commenting: turnOffCommenting,
                     },
-                ]);
+                ])
+                .select()
+                .single();
 
-            if (imgInsertError) throw imgInsertError;
+            if (postError) throw postError;
+
+            const postId = postData.id;
+
+            // 2) Process and upload each image
+            for (let i = 0; i < images.length; i++) {
+                const img = images[i];
+                const edits = imageEdits[img.id] || null;
+
+                // Process image with all filters and adjustments
+                const processedBlob = await processImageWithEdits(img.url, edits);
+
+                const fileExt = "jpg"; // Always save as jpg since we're processing
+
+                // IMPORTANT: file path must start with user.id for RLS policy
+                const filePath = `${user.id}/${postId}/${crypto.randomUUID()}.${fileExt}`;
+
+                // Upload processed image to storage bucket
+                const { error: uploadError } = await supabase.storage
+                    .from("posts")
+                    .upload(filePath, processedBlob, {
+                        contentType: 'image/jpeg',
+                    });
+
+                if (uploadError) throw uploadError;
+
+                // Insert into post_images table (no need to store edits anymore)
+                const { error: imgInsertError } = await supabase
+                    .from("post_images")
+                    .insert([
+                        {
+                            post_id: postId,
+                            image_path: filePath,
+                            order_index: i,
+                        },
+                    ]);
+
+                if (imgInsertError) throw imgInsertError;
+            }
+
+            // success
+            resetAll();
+            onClose();
+        } catch (err) {
+            console.error("Error sharing post:", err);
+            alert(err.message);
+        } finally {
+            setIsSharing(false);
         }
-
-        // success
-        resetAll();
-        onClose();
-    } catch (err) {
-        console.error("Error sharing post:", err);
-        alert(err.message);
-    } finally {
-        setIsSharing(false);
-    }
-};
+    };
 
 
     return (
@@ -927,28 +1105,28 @@ function CreatePostModal({ open, onClose }) {
                 <div className="caption-modal">
                     {/* LOADER OVERLAY */}
                     {isSharing && (
-  <div className="sharing-popup-overlay">
-    <div className="sharing-popup-box">
+                        <div className="sharing-popup-overlay">
+                            <div className="sharing-popup-box">
 
-      <div className="sharing-popup-header">
-        Sharing your post...
-      </div>
+                                <div className="sharing-popup-header">
+                                    Sharing your post...
+                                </div>
 
-      <div className="sharing-popup-divider"></div>
+                                <div className="sharing-popup-divider"></div>
 
-      <div className="sharing-popup-body">
+                                <div className="sharing-popup-body">
 
-        <div className="loader-brand">
-          <h1 className="loader-title brand-gradient">CodeGram</h1>
-        </div>
+                                    <div className="loader-brand">
+                                        <h1 className="loader-title brand-gradient">CodeGram</h1>
+                                    </div>
 
-        <div className="loader-spinner"></div>
+                                    <div className="loader-spinner"></div>
 
-        <p className="loader-text">Uploading photos...</p>
-      </div>
-    </div>
-  </div>
-)}
+                                    <p className="loader-text">Uploading photos...</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Header */}
                     <div className="caption-header">
