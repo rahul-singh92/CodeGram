@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { User, Bell } from "lucide-react";
+import { User, Bell, Lock } from "lucide-react";
 
 function SettingsSidebar() {
   return (
@@ -24,12 +24,26 @@ function SettingsSidebar() {
 
       <NavLink
         to="/settings/notifications"
+        className={({ isActive }) =>
+          `settings-item ${isActive ? "active" : ""}`
+        }
+      >
+        <Bell className="settings-icon" size={18} strokeWidth={1.5} />
+        <span>Notifications</span>
+      </NavLink>
+
+      {/*New Group title*/}
+      <p className="settings-group-title">Who can see your content</p>
+
+      {/* Account privacy */}
+      <NavLink
+        to="/settings/privacy"
         className={({ isActive }) => 
           `settings-item ${isActive ? "active" : ""}`
         }
       >
-        <Bell className="settings-icon" size={18} strokeWidth={1.5}/>
-        <span>Notifications</span>
+        <Lock className="settings-icon" size={18} strokeWidth={1.5}/>
+        <span>Account privacy</span>
       </NavLink>
     </aside>
   );

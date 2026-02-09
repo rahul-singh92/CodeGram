@@ -606,3 +606,17 @@
 .toggle-switch.on .toggle-circle {
   transform: translateX(22px);
 }
+
+/* ===== ACCOUNT PRIVACY INFO TEXT ===== */
+
+.privacy-info-text {
+  margin-top: 30px;          /* ⬅️ larger gap */
+  font-size: 12px;
+  color: rgb(168, 168, 168);
+  line-height: 1.4;
+  text-align: left;
+}
+
+.privacy-info-text p {
+  margin-bottom: 12px;       /* spacing between paragraphs */
+}
