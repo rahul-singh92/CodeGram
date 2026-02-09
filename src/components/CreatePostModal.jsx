@@ -339,7 +339,7 @@ function CreatePostModal({ open, onClose }) {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = "anonymous";
-            
+
             img.onload = () => {
                 try {
                     const canvas = document.createElement('canvas');
@@ -347,10 +347,10 @@ function CreatePostModal({ open, onClose }) {
 
                     // Get crop settings
                     const crop = edits?.crop || { zoom: 1, x: 0, y: 0, aspect: "original" };
-                    
+
                     // Calculate canvas dimensions based on aspect ratio
                     let canvasWidth, canvasHeight;
-                    
+
                     switch (crop.aspect) {
                         case "square":
                             canvasWidth = canvasHeight = Math.min(img.width, img.height);
@@ -1310,14 +1310,13 @@ function CreatePostModal({ open, onClose }) {
                                         <div className="setting-item">
                                             <div className="setting-header">
                                                 <span className="setting-title">Hide like and view counts on this post</span>
-                                                <label className="toggle-switch">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={hideLikeCounts}
-                                                        onChange={(e) => setHideLikeCounts(e.target.checked)}
-                                                    />
-                                                    <span className="toggle-slider"></span>
-                                                </label>
+                                                <div
+                                                    className={`toggle-switch ${hideLikeCounts ? "on" : ""}`}
+                                                    onClick={() => setHideLikeCounts(!hideLikeCounts)}
+                                                >
+                                                    <div className="toggle-circle"></div>
+                                                </div>
+
                                             </div>
                                             <p className="setting-description">
                                                 Only you will see the total number of likes and views on this post. You can change this later by going to the ··· menu at the top of the post. To hide like counts on other people's posts, go to your account settings.
@@ -1328,14 +1327,12 @@ function CreatePostModal({ open, onClose }) {
                                         <div className="setting-item">
                                             <div className="setting-header">
                                                 <span className="setting-title">Turn off commenting</span>
-                                                <label className="toggle-switch">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={turnOffCommenting}
-                                                        onChange={(e) => setTurnOffCommenting(e.target.checked)}
-                                                    />
-                                                    <span className="toggle-slider"></span>
-                                                </label>
+                                                <div
+                                                    className={`toggle-switch ${turnOffCommenting ? "on" : ""}`}
+                                                    onClick={() => setTurnOffCommenting(!turnOffCommenting)}
+                                                >
+                                                    <div className="toggle-circle"></div>
+                                                </div>
                                             </div>
                                             <p className="setting-description">
                                                 You can change this later by going to the ··· menu at the top of your post.
