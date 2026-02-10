@@ -73,6 +73,9 @@ function Profile() {
                 id,
                 image_path,
                 order_index
+            ),
+            likes (
+                user_id
             )
         `)
             .eq("user_id", user.id)
@@ -105,6 +108,8 @@ function Profile() {
                 return {
                     ...post,
                     post_images: imagesWithSignedUrls,
+                    likesCount: post.likes?.length || 0,
+                    isLiked: post.likes?.some((l) => l.user_id === user.id) || false,
                 };
             })
         );
