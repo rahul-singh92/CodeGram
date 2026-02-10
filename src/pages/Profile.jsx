@@ -30,6 +30,7 @@ function Profile() {
     const [avatarLoading, setAvatarLoading] = useState(false);
     const [showAccountInfo, setShowAccountInfo] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [showFullBio, setShowFullBio] = useState(false);
     const navigate = useNavigate();
 
     const { uploadAvatar, removeAvatar } = useAvatarUpload(
@@ -39,14 +40,20 @@ function Profile() {
         setProfile
     );
 
+    const isBioLong = profile?.bio && (
+        profile.bio.length > 125 ||
+        profile.bio.split("\n").length > 3
+    );
+
+
     useEffect(() => {
-        if(!loading && !user) {
+        if (!loading && !user) {
             navigate("/");
         }
     }, [loading, user, navigate]);
 
     useEffect(() => {
-        if(profile?.avatar_url) {
+        if (profile?.avatar_url) {
             setAvatarUrl(profile.avatar_url);
         }
         else {
@@ -136,9 +143,18 @@ function Profile() {
                         </div>
                         {profile.bio && (
                             <div className="profile-bio">
-                                {profile.bio}
+                                <p className={`bio-text ${!showFullBio ? "clamped" : ""}`}>
+                                    {profile.bio}
+                                </p>
+
+                                {isBioLong && (
+                                    <span className="bio-more" onClick={() => setShowFullBio(!showFullBio)}>
+                                        {showFullBio ? "less" : "...more"}
+                                    </span>
+                                )}
                             </div>
                         )}
+
                     </div>
                 </div>
 

@@ -478,3 +478,27 @@
   word-wrap: break-word;
   white-space: pre-wrap;
 }
+.profile-bio {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.bio-text.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bio-more {
+  cursor: pointer;
+  color: #8e8e8e; /* Instagram's grey */
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+
+.bio-more:hover {
+  color: #545353;
+}
