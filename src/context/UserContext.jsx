@@ -10,6 +10,8 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [cachedPosts, setCachedPosts] = useState([]);
+  const [postsFetched, setPostsFetched] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -80,7 +82,15 @@ export function UserProvider({ children }) {
   }
 
   return (
-    <UserContext.Provider value={{ user, profile, setProfile }}>
+    <UserContext.Provider value={{
+      user,
+      profile,
+      setProfile,
+      cachedPosts,
+      setCachedPosts,
+      postsFetched,
+      setPostsFetched
+    }}>
       {children}
     </UserContext.Provider>
   );
