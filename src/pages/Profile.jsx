@@ -17,7 +17,6 @@ import {
 
 import {
     faGear,
-    faLock
 } from "@fortawesome/free-solid-svg-icons";
 
 import "../styles/profile.css";
@@ -248,7 +247,7 @@ function Profile() {
         if (!postsFetched) {
             fetchPosts();
         }
-    }, [user, postsFetched, fetchPosts]);
+    }, [user, postsFetched, fetchPosts, isVisitingUser]);
 
     useEffect(() => {
         if (!user || cachedPosts.length === 0) return;
