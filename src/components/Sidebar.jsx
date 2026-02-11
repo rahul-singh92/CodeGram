@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useUser } from "../context/UserContext";
 import NotificationsSidebar from "./NotificationsSidebar";
+import SearchModal from "./SearchModal";
 import CreatePostModal from "./CreatePostModal";
 import {
   HomeIcon,
@@ -35,6 +36,8 @@ function Sidebar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+
 
   const fetchUnread = useCallback(async () => {
     if (!profile?.id) return;
@@ -87,10 +90,11 @@ function Sidebar() {
             <span>Messages</span>
           </div>
 
-          <div className="menu-item">
+          <div className="menu-item" onClick={() => setShowSearch(true)}>
             <SearchIcon />
             <span>Search</span>
           </div>
+
 
           <div className="menu-item">
             <ExploreIcon />
@@ -112,9 +116,9 @@ function Sidebar() {
           </div>
 
           <div className="menu-item" onClick={() => setShowCreatePost(true)}>
-  <FontAwesomeIcon icon={faSquarePlus} />
-  <span>Create</span>
-</div>
+            <FontAwesomeIcon icon={faSquarePlus} />
+            <span>Create</span>
+          </div>
 
 
           {/* PROFILE */}
@@ -157,14 +161,14 @@ function Sidebar() {
       />
 
 
-<CreatePostModal
-  open={showCreatePost}
-  onClose={() => setShowCreatePost(false)}
-  onSelectFile={() => {
-    alert("File picker will open here");
-  }}
-/>
-
+      <CreatePostModal
+        open={showCreatePost}
+        onClose={() => setShowCreatePost(false)}
+        onSelectFile={() => {
+          alert("File picker will open here");
+        }}
+      />
+      <SearchModal open={showSearch} onClose={() => setShowSearch(false)} />
       {/* MORE MENU OVERLAY */}
       {showMoreMenu && (
         <>

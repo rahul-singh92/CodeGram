@@ -99,6 +99,11 @@ function Signup() {
       return;
     }
 
+    if (username.includes(" ")) {
+      alert("Username cannot contain spaces");
+      return;
+    }
+
     setLoading(true);
 
     const dob = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;

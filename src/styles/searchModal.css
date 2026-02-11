@@ -1,0 +1,140 @@
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+}
+
+.search-modal {
+  width: 380px;
+  height: 100vh;
+  background: rgb(13, 16, 20);
+  color: white;
+  padding: 16px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.search-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.search-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: rgb(25, 28, 35);
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.search-icon {
+  opacity: 0.7;
+}
+
+.search-clear-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.search-clear-btn:hover {
+  opacity: 1;
+}
+
+.search-recent-header {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.search-no-recent,
+.search-loading,
+.search-no-results {
+  font-size: 13px;
+  opacity: 0.7;
+  padding: 10px 0;
+}
+
+.search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.search-user-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.search-user-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.search-user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgb(30, 30, 30);
+}
+
+.search-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-user-username {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.search-user-fullname {
+  font-size: 13px;
+  opacity: 0.7;
+}

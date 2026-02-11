@@ -43,6 +43,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/user/:username" element={<Profile />} />
 
         <Route
           path="/settings"
