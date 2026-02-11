@@ -19,6 +19,7 @@ import {
 import EditPostModal from "./EditPostModal";
 import { supabase } from "../lib/supabase";
 import { useUser } from "../context/UserContext";
+import AboutAccountModal from "./AboutAccountModal";
 
 
 function PostViewerModal({
@@ -46,6 +47,7 @@ function PostViewerModal({
     const [editCaption, setEditCaption] = useState("");
     const [editImages, setEditImages] = useState([]);
     const [showDeletePostConfirm, setShowDeletePostConfirm] = useState(false);
+    const [showAboutAccount, setShowAboutAccount] = useState(false);
 
 
     const commentRef = useRef(null);
@@ -647,9 +649,16 @@ function PostViewerModal({
 
                             <div className="pv-post-menu-divider"></div>
 
-                            <div className="pv-post-menu-item">
+                            <div
+                                className="pv-post-menu-item"
+                                onClick={() => {
+                                    setShowPostMenu(false);
+                                    setShowAboutAccount(true);
+                                }}
+                            >
                                 About this account
                             </div>
+
 
                             <div className="pv-post-menu-divider"></div>
 
@@ -662,6 +671,13 @@ function PostViewerModal({
                         </div>
                     </div>
                 )}
+                <AboutAccountModal
+                    open={showAboutAccount}
+                    onClose={() => setShowAboutAccount(false)}
+                    profile={profile}
+                    avatarUrl={profile?.avatar_url}
+                />
+
 
                 {showDeletePostConfirm && (
                     <div

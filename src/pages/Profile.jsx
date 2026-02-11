@@ -7,6 +7,7 @@ import { useAvatarUpload } from "../hooks/useAvatarUpload";
 import { useUser } from "../context/UserContext";
 import { supabase } from "../lib/supabase";
 import PostViewerModal from "../components/PostViewerModal";
+import AboutAccountModal from "../components/AboutAccountModal";
 
 
 
@@ -17,8 +18,6 @@ import {
 
 import {
     faGear,
-    faCalendar,
-    faLocationDot
 } from "@fortawesome/free-solid-svg-icons";
 
 import "../styles/profile.css";
@@ -181,15 +180,6 @@ function Profile() {
 
         return () => clearInterval(interval);
     }, [user, cachedPosts, setCachedPosts]);
-
-
-    const formatMonthYear = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-            month: "long",
-            year: "numeric",
-        });
-    };
 
     if (loading || !profile) {
         return null;
@@ -378,82 +368,13 @@ function Profile() {
                         );
                     }}
                 />
+                <AboutAccountModal
+                    open={showAccountInfo}
+                    onClose={() => setShowAccountInfo(false)}
+                    profile={profile}
+                    avatarUrl={avatarUrl}
+                />
 
-
-
-                {showAccountInfo && (
-                    <div
-                        className="modal-overlay"
-                        onClick={() => setShowAccountInfo(false)}
-                    >
-                        <div
-                            className="photo-modal account-modal"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {/* HEADER */}
-                            <div className="modal-item header">
-                                About your account
-                            </div>
-
-                            <div className="modal-divider"></div>
-
-                            {/* PROFILE */}
-                            <div className="account-profile">
-                                <div className="account-avatar">
-                                    {avatarUrl ? (
-                                        <img src={avatarUrl} alt="Avatar" />
-                                    ) : (
-                                        <FontAwesomeIcon icon={faUserCircle} />
-                                    )}
-                                </div>
-
-                                <div className="account-username">
-                                    {profile.username}
-                                </div>
-                            </div>
-
-                            {/* DESCRIPTION */}
-                            <div className="account-desc">
-                                To help keep our community authentic, we're showing information about
-                                accounts on CodeGram. People can see this by tapping on the ••• on your
-                                profile and choosing About this account.
-                            </div>
-
-                            {/* DATE JOINED */}
-                            <div className="account-row">
-                                <FontAwesomeIcon icon={faCalendar} />
-                                <div>
-                                    <div className="account-title">Date Joined</div>
-                                    <div className="account-sub">
-                                        {formatMonthYear(profile.created_at)}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* LOCATION */}
-                            <div className="account-row">
-                                <FontAwesomeIcon icon={faLocationDot} />
-                                <div>
-                                    <div className="account-title">Account based in</div>
-                                    <div className="account-sub">
-                                        {profile.country || "Unknown"}
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div className="modal-divider"></div>
-
-                            {/* CLOSE */}
-                            <div
-                                className="modal-item cancel"
-                                onClick={() => setShowAccountInfo(false)}
-                            >
-                                Close
-                            </div>
-                        </div>
-                    </div>
-                )}
 
                 {showSettingsModal && (
                     <div
