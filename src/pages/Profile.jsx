@@ -72,6 +72,7 @@ function Profile() {
             .from("posts")
             .select(`
             id,
+            user_id,
             caption,
             created_at,
             post_images (
@@ -180,6 +181,7 @@ function Profile() {
                 .from("posts")
                 .select(`
                 id,
+                user_id,
                 caption,
                 created_at,
                 post_images (
@@ -219,9 +221,10 @@ function Profile() {
 
                     return {
                         ...post,
+                        user_id: post.user_id,
                         post_images: imagesWithSignedUrls,
                         likesCount: post.likes?.length || 0,
-                        isLiked: false,
+                        isLiked: post.likes?.some((l) => l.user_id === user.id) || false,
                     };
                 })
             );
@@ -231,7 +234,7 @@ function Profile() {
         };
 
         fetchVisitedPosts();
-    }, [viewProfile, isVisitingUser]);
+    }, [viewProfile, isVisitingUser, user]);
 
     useEffect(() => {
         if (!isVisitingUser) {

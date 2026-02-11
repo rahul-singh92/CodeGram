@@ -272,6 +272,8 @@ function PostViewerModal({
         // fetch again
         fetchComments();
     };
+    console.log("post.user_id:", post?.user_id);
+console.log("user.id:", user?.id);
 
     const handleToggleLike = async () => {
         if (!user) return;
@@ -326,6 +328,8 @@ function PostViewerModal({
         e.target.style.height = "auto";
         e.target.style.height = Math.min(e.target.scrollHeight, 80) + "px";
     };
+
+    const isOwner = user?.id === post.user_id;
 
     return (
         <div className="pv-overlay" onClick={onClose}>
@@ -625,29 +629,34 @@ function PostViewerModal({
                             className="pv-post-menu-box"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div
-                                className="pv-post-menu-item delete"
-                                onClick={() => {
-                                    setShowPostMenu(false);
-                                    setShowDeletePostConfirm(true);
-                                }}
-                            >
-                                Delete
-                            </div>
 
-                            <div className="pv-post-menu-divider"></div>
+                            {isOwner ? (
+                                <>
+                                    <div
+                                        className="pv-post-menu-item delete"
+                                        onClick={() => {
+                                            setShowPostMenu(false);
+                                            setShowDeletePostConfirm(true);
+                                        }}
+                                    >
+                                        Delete
+                                    </div>
 
-                            <div
-                                className="pv-post-menu-item"
-                                onClick={() => {
-                                    setShowPostMenu(false);
-                                    setShowEditModal(true);
-                                }}
-                            >
-                                Edit
-                            </div>
+                                    <div className="pv-post-menu-divider"></div>
 
-                            <div className="pv-post-menu-divider"></div>
+                                    <div
+                                        className="pv-post-menu-item"
+                                        onClick={() => {
+                                            setShowPostMenu(false);
+                                            setShowEditModal(true);
+                                        }}
+                                    >
+                                        Edit
+                                    </div>
+
+                                    <div className="pv-post-menu-divider"></div>
+                                </>
+                            ) : null}
 
                             <div
                                 className="pv-post-menu-item"
@@ -659,18 +668,18 @@ function PostViewerModal({
                                 About this account
                             </div>
 
-
                             <div className="pv-post-menu-divider"></div>
 
                             <div
                                 className="pv-post-menu-item cancel"
                                 onClick={() => setShowPostMenu(false)}
                             >
-                                Cancel
+                                Close
                             </div>
                         </div>
                     </div>
                 )}
+
                 <AboutAccountModal
                     open={showAboutAccount}
                     onClose={() => setShowAboutAccount(false)}

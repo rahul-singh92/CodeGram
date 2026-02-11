@@ -1,8 +1,12 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
 import { faCalendar, faLocationDot } from "@fortawesome/free-solid-svg-icons";
+import { useUser } from "../context/UserContext";
 
 function AboutAccountModal({ open, onClose, profile, avatarUrl }) {
+  const { user } = useUser();
+  const isMyAccount = user?.id === profile?.id;
+
   if (!open) return null;
 
   const formatMonthYear = (dateString) => {
@@ -39,10 +43,13 @@ function AboutAccountModal({ open, onClose, profile, avatarUrl }) {
 
         {/* DESCRIPTION */}
         <div className="account-desc">
-          To help keep our community authentic, we're showing information about
-          accounts on CodeGram. People can see this by tapping on the ••• on your
-          profile and choosing About this account.
+          {isMyAccount
+            ? `To help keep our community authentic, we're showing information about
+      accounts on CodeGram. People can see this by tapping on the ••• on your
+      profile and choosing About this account.`
+            : `To help keep our community authentic, we’re showing information about accounts on CodeGram.`}
         </div>
+
 
         {/* DATE JOINED */}
         <div className="account-row">
