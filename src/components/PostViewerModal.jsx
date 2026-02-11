@@ -16,6 +16,7 @@ import {
     EmojiIcon,
     UnlikeIcon
 } from "../components/icons/AppIcons";
+import EditPostModal from "./EditPostModal";
 import { supabase } from "../lib/supabase";
 import { useUser } from "../context/UserContext";
 
@@ -28,6 +29,8 @@ function PostViewerModal({
     profile,
     onNextPost,
     onPrevPost,
+    onPostDeleted,
+    onPostUpdated
 }) {
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [commentText, setCommentText] = useState("");
@@ -38,6 +41,12 @@ function PostViewerModal({
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [showCommentMenu, setShowCommentMenu] = useState(false);
     const [selectedComment, setSelectedComment] = useState(null);
+    const [showPostMenu, setShowPostMenu] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editCaption, setEditCaption] = useState("");
+    const [editImages, setEditImages] = useState([]);
+    const [showDeletePostConfirm, setShowDeletePostConfirm] = useState(false);
+
 
     const commentRef = useRef(null);
 
@@ -64,6 +73,51 @@ function PostViewerModal({
         const diffWeeks = Math.floor(diffDays / 7);
         return `${diffWeeks}w`;
     };
+
+    const handleDeletePost = async () => {
+        if (!post) return;
+
+        try {
+            const imagePaths = (post.post_images || []).map((img) => img.image_path);
+
+            // delete from storage
+            if (imagePaths.length > 0) {
+                const { error: storageError } = await supabase.storage
+                    .from("posts")
+                    .remove(imagePaths);
+
+                if (storageError) {
+                    console.log("Storage delete error:", storageError.message);
+                }
+            }
+
+            // delete notifications related to this post
+            await supabase
+                .from("notifications")
+                .delete()
+                .eq("post_id", post.id);
+
+            // delete post row (cascade deletes likes/comments/post_images)
+            const { error } = await supabase
+                .from("posts")
+                .delete()
+                .eq("id", post.id);
+
+            if (error) throw error;
+
+            setShowDeletePostConfirm(false);
+
+            // remove from UI instantly
+            if (onPostDeleted) onPostDeleted(post.id);
+
+            onClose();
+        } catch (err) {
+            console.log("Delete post error:", err.message);
+            alert("Failed to delete post");
+        }
+    };
+
+
 
     const handleDeleteComment = async () => {
         if (!selectedComment) return;
@@ -134,6 +188,14 @@ function PostViewerModal({
         // reset image index whenever post changes
         setActiveImageIndex(0);
     }, [post]);
+
+    useEffect(() => {
+        if (!post) return;
+
+        setEditCaption(post.caption || "");
+        setEditImages(post.post_images || []);
+    }, [post]);
+
 
     useEffect(() => {
         if (!post) return;
@@ -342,7 +404,7 @@ function PostViewerModal({
                                 <span className="pv-username">{profile?.username}</span>
                             </div>
 
-                            <button className="pv-dots-btn">
+                            <button className="pv-dots-btn" onClick={() => setShowPostMenu(true)}>
                                 <FontAwesomeIcon icon={faEllipsisH} />
                             </button>
                         </div>
@@ -520,6 +582,30 @@ function PostViewerModal({
                     </div>
 
                 </div>
+                <EditPostModal
+                    open={showEditModal}
+                    onClose={() => setShowEditModal(false)}
+                    post={post}
+                    profile={profile}
+                    images={editImages}
+                    setImages={setEditImages}
+                    caption={editCaption}
+                    setCaption={setEditCaption}
+                    onDone={() => {
+                        setShowEditModal(false);
+
+                        if (onPostUpdated) {
+                            onPostUpdated(post.id, {
+                                caption: editCaption,
+                                post_images: editImages
+                            });
+                        }
+                    }}
+                    onDeletePostRequest={() => {
+                        setShowEditModal(false);
+                        setShowDeletePostConfirm(true);
+                    }}
+                />
 
                 {/* POST RIGHT ARROW */}
                 {hasNextPost && (
@@ -527,6 +613,94 @@ function PostViewerModal({
                         <FontAwesomeIcon icon={faChevronRight} />
                     </button>
                 )}
+
+                {showPostMenu && (
+                    <div
+                        className="pv-post-menu-overlay"
+                        onClick={() => setShowPostMenu(false)}
+                    >
+                        <div
+                            className="pv-post-menu-box"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div
+                                className="pv-post-menu-item delete"
+                                onClick={() => {
+                                    setShowPostMenu(false);
+                                    setShowDeletePostConfirm(true);
+                                }}
+                            >
+                                Delete
+                            </div>
+
+                            <div className="pv-post-menu-divider"></div>
+
+                            <div
+                                className="pv-post-menu-item"
+                                onClick={() => {
+                                    setShowPostMenu(false);
+                                    setShowEditModal(true);
+                                }}
+                            >
+                                Edit
+                            </div>
+
+                            <div className="pv-post-menu-divider"></div>
+
+                            <div className="pv-post-menu-item">
+                                About this account
+                            </div>
+
+                            <div className="pv-post-menu-divider"></div>
+
+                            <div
+                                className="pv-post-menu-item cancel"
+                                onClick={() => setShowPostMenu(false)}
+                            >
+                                Cancel
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {showDeletePostConfirm && (
+                    <div
+                        className="pv-post-menu-overlay"
+                        onClick={() => setShowDeletePostConfirm(false)}
+                    >
+                        <div
+                            className="pv-confirm-box"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <h3 className="pv-confirm-title">Delete post?</h3>
+
+                            <p className="pv-confirm-subtitle">
+                                If you delete your post, it will be permanently deleted and can't be recovered.
+                            </p>
+
+                            <div className="pv-post-menu-divider"></div>
+
+                            <div
+                                className="pv-post-menu-item delete"
+                                onClick={handleDeletePost}
+                            >
+                                Delete
+                            </div>
+
+                            <div className="pv-post-menu-divider"></div>
+
+                            <div
+                                className="pv-post-menu-item cancel"
+                                onClick={() => setShowDeletePostConfirm(false)}
+                            >
+                                Cancel
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
+
                 {showCommentMenu && (
                     <div
                         className="pv-comment-menu-overlay"

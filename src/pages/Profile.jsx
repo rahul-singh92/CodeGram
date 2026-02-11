@@ -361,6 +361,22 @@ function Profile() {
                             setSelectedPost(cachedPosts[currentIndex - 1]);
                         }
                     }}
+                    onPostDeleted={(postId) => {
+                        setCachedPosts((prev) => prev.filter((p) => p.id !== postId));
+                        setSelectedPost(null);
+                    }}
+
+                    onPostUpdated={(postId, updatedData) => {
+                        setCachedPosts((prev) =>
+                            prev.map((p) =>
+                                p.id === postId ? { ...p, ...updatedData } : p
+                            )
+                        );
+
+                        setSelectedPost((prev) =>
+                            prev?.id === postId ? { ...prev, ...updatedData } : prev
+                        );
+                    }}
                 />
 
 

@@ -100,9 +100,12 @@
 /* CAPTION AREA */
 .pv-caption-area {
   padding: 14px;
-  overflow-y: auto;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* ✅ important */
 }
+
 
 .pv-caption-row {
   display: flex;
@@ -124,9 +127,15 @@
 
 /* COMMENTS PLACEHOLDER */
 .pv-comments-space {
-  margin-top: 20px;
-  min-height: 250px;
+  flex: 1;                 /* ✅ takes maximum available space */
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;        /* ✅ scrolling */
+  padding-right: 6px;      /* optional smooth scroll space */
 }
+
 
 /* POST ARROWS (OUTSIDE MODAL) */
 .pv-arrow {
@@ -419,13 +428,6 @@
   color: #ed4956; /* Instagram red */
 }
 
-.pv-comments-space {
-  margin-top: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
 .pv-comment-row {
   display: flex;
   gap: 10px;
@@ -521,4 +523,77 @@
 
 .pv-comment-menu-item:hover {
   background: rgba(255, 255, 255, 0.06);
+}
+
+.pv-post-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6000;
+}
+
+.pv-post-menu-box {
+  width: 440px;
+  max-width: 92%;
+  background: rgb(33, 35, 40);
+  border-radius: 16px;
+  overflow: hidden;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+}
+
+.pv-post-menu-item {
+  padding: 18px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+}
+
+.pv-post-menu-item.delete {
+  color: #ef4444;
+}
+
+.pv-post-menu-item.cancel {
+  color: white;
+}
+
+.pv-post-menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.pv-post-menu-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.pv-confirm-box {
+  width: 440px;
+  max-width: 92%;
+  background: rgb(33, 35, 40);
+  border-radius: 16px;
+  overflow: hidden;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+  padding-top: 18px;
+}
+
+.pv-confirm-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  padding: 0 18px;
+}
+
+.pv-confirm-subtitle {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1.4;
+  padding: 0 22px 18px;
 }

@@ -1,0 +1,333 @@
+/* =========================
+   OVERLAY + MODAL
+========================= */
+.ep-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 8000;
+}
+
+.ep-modal {
+  width: 1050px;
+  max-width: 95%;
+  height: 650px;
+  background: rgb(33, 35, 40);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================
+   HEADER
+========================= */
+.ep-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ep-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.ep-cancel {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.ep-done {
+  background: transparent;
+  border: none;
+  color: #38bdf8;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ep-done:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   DIVIDER
+========================= */
+.ep-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* =========================
+   BODY
+========================= */
+.ep-body {
+  flex: 1;
+  display: flex;
+  height: 100%;
+}
+
+/* =========================
+   IMAGE BOX
+========================= */
+.ep-image-box {
+  width: 55%;
+  background: black;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ep-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* DELETE IMAGE BUTTON */
+.ep-delete-photo {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+  color: white;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 50;
+}
+
+/* IMAGE ARROWS */
+.ep-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  border: none;
+  color: white;
+  font-size: 28px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 30;
+}
+
+.ep-arrow.left {
+  left: 14px;
+}
+
+.ep-arrow.right {
+  right: 14px;
+}
+
+/* DOTS */
+.ep-dots {
+  position: absolute;
+  bottom: 14px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  z-index: 25;
+}
+
+.ep-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.ep-dot.active {
+  background: white;
+}
+
+/* =========================
+   CAPTION BOX (RIGHT)
+========================= */
+.ep-caption-box {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  height: 70%;
+  background: rgb(33, 35, 40);
+}
+
+/* USER ROW */
+.ep-user-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.ep-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ep-user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+/* TEXTAREA */
+.ep-caption-box textarea {
+  flex: 1;
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  color: white;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-y: auto;
+}
+
+/* FOOTER */
+.ep-caption-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  color: #9ca3af;
+  font-size: 12px;
+  position: relative;
+}
+
+.ep-emoji-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ep-word-count {
+  font-size: 12px;
+}
+
+/* EMOJI BOX */
+.ep-emoji-box {
+  position: absolute;
+  bottom: 45px;
+  left: 12px;
+  background: rgb(25, 27, 32);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 200;
+}
+
+.ep-emoji-item {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.ep-emoji-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* COMMENTS PLACEHOLDER SPACE */
+.ep-comments-space {
+  height: 90px;
+  padding: 14px 16px;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+/* =========================
+   CONFIRM DELETE IMAGE MODAL
+========================= */
+.ep-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9000;
+}
+
+.ep-confirm-box {
+  width: 440px;
+  max-width: 92%;
+  background: rgb(33, 35, 40);
+  border-radius: 16px;
+  overflow: hidden;
+  text-align: center;
+  padding-top: 18px;
+}
+
+.ep-confirm-box h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ep-confirm-box p {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1.4;
+  padding: 0 22px 18px;
+}
+
+.ep-confirm-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ep-confirm-delete,
+.ep-confirm-cancel {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.ep-confirm-delete {
+  color: #ef4444;
+}
+
+.ep-confirm-cancel {
+  color: white;
+}
+
+.ep-confirm-delete:hover,
+.ep-confirm-cancel:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
