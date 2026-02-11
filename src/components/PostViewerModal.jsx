@@ -48,6 +48,7 @@ function PostViewerModal({
     const [editImages, setEditImages] = useState([]);
     const [showDeletePostConfirm, setShowDeletePostConfirm] = useState(false);
     const [showAboutAccount, setShowAboutAccount] = useState(false);
+    const [likers, setLikers] = useState([]);
 
 
     const commentRef = useRef(null);
@@ -236,6 +237,46 @@ function PostViewerModal({
     }, [open, post, fetchComments]);
 
 
+    useEffect(() => {
+        if (!post) return;
+
+        const fetchLikers = async () => {
+            const { data: likesData, error } = await supabase
+                .from("likes")
+                .select("user_id")
+                .eq("post_id", post.id);
+
+            if (error) {
+                console.log("Fetch likes error:", error.message);
+                setLikers([]);
+                return;
+            }
+
+            const likerIds = likesData
+                .map((l) => l.user_id);
+
+            if (likerIds.length === 0) {
+                setLikers([]);
+                return;
+            }
+
+            const { data: profilesData, error: profileError } = await supabase
+                .from("profiles")
+                .select("id, avatar_url")
+                .in("id", likerIds);
+
+            if (profileError) {
+                console.log("Fetch liker profiles error:", profileError.message);
+                setLikers([]);
+                return;
+            }
+
+            setLikers(profilesData || []);
+        };
+
+        fetchLikers();
+    }, [post, user]);
+
     if (!open || !post) return null;
 
 
@@ -272,8 +313,6 @@ function PostViewerModal({
         // fetch again
         fetchComments();
     };
-    console.log("post.user_id:", post?.user_id);
-console.log("user.id:", user?.id);
 
     const handleToggleLike = async () => {
         if (!user) return;
@@ -511,25 +550,33 @@ console.log("user.id:", user?.id);
                             </div>
 
                             {/* LIKES SECTION */}
-                            <div className="pv-likes-row">
-                                <div className="pv-liked-avatars">
-                                    <img className="pv-like-avatar" src={profile?.avatar_url || ""} alt="" />
-                                    <img className="pv-like-avatar" src={profile?.avatar_url || ""} alt="" />
-                                    <img className="pv-like-avatar" src={profile?.avatar_url || ""} alt="" />
-                                </div>
+                            {likesCount > 0 && (
+                                <div className="pv-likes-row">
 
-                                <div className="pv-likes-text">
-                                    {likesCount === 0 ? (
-                                        "Be the first to like this"
-                                    ) : likesCount === 1 ? (
-                                        <span>Liked by <strong>1 person</strong></span>
-                                    ) : (
-                                        <span>Liked by <strong>{likesCount}</strong> people</span>
+                                    {/* show avatars only if likes > 1 */}
+                                    {likesCount > 1 && likers.length > 0 && (
+                                        <div className="pv-liked-avatars">
+                                            {likers.slice(0, 3).map((p) => (
+                                                <img
+                                                    key={p.id}
+                                                    className="pv-like-avatar"
+                                                    src={p.avatar_url || ""}
+                                                    alt="liker"
+                                                />
+                                            ))}
+                                        </div>
                                     )}
+
+                                    <div className="pv-likes-text">
+                                        {likesCount === 1 ? (
+                                            <span>Liked by <strong>1 person</strong></span>
+                                        ) : (
+                                            <span>Liked by <strong>{likesCount}</strong> people</span>
+                                        )}
+                                    </div>
                                 </div>
+                            )}
 
-
-                            </div>
 
                             {/* DATE */}
                             <div className="pv-post-date">
