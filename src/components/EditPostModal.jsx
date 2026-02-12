@@ -105,10 +105,18 @@ function EditPostModal({
             await supabase.storage.from("posts").remove([img.image_path]);
 
             // delete from post_images
-            await supabase.from("post_images").delete().eq("id", img.id);
+            const { data, error } = await supabase.from("post_images").delete().eq("post_id", post.id).eq("order_index", img.order_index);
 
             // update local images
             const updated = images.filter((_, i) => i !== activeIndex);
+
+            //re assign order to the images in DB
+            for (let i = 0; i < updated.length; i++) {
+                await supabase
+                    .from("post_images")
+                    .update({ order_index: i })
+                    .eq("id", updated[i].id);
+            }
 
             setImages(updated);
 
