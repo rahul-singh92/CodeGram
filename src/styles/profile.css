@@ -179,6 +179,22 @@
   font-size: 14px;
 }
 
+.follow-btn {
+  background-color: rgb(74, 93, 249); /* Instagram blue */
+  color: white;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.follow-btn:hover {
+  background-color: rgb(50, 73, 243); /* slightly darker blue */
+}
+
+
 .profile-btn.secondary {
   background-color: transparent;
 }

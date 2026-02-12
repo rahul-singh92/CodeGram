@@ -47,6 +47,7 @@ function Profile() {
     const [viewProfile, setViewProfile] = useState(null);
     const [viewPosts, setViewPosts] = useState([]);
     const [viewPostsLoading, setViewPostsLoading] = useState(false);
+    const [viewPostsCount, setViewPostsCount] = useState(0);
     const currentProfile = isVisitingUser ? viewProfile : profile;
     const currentPosts = isVisitingUser ? viewPosts : cachedPosts;
     const finalAvatarUrl = isVisitingUser ? currentProfile?.avatar_url : avatarUrl;
@@ -167,6 +168,17 @@ function Profile() {
     useEffect(() => {
         if (!isVisitingUser) return;
         if (!viewProfile) return;
+
+        const fetchPostCount = async () => {
+            const { count, error } = await supabase
+                .from("posts")
+                .select("id", { count: "exact", head: true })
+                .eq("user_id", viewProfile.id);
+
+            if (!error) setViewPostsCount(count || 0);
+        };
+
+        fetchPostCount();
 
         if (viewProfile.is_private) {
             setViewPosts([]);
@@ -347,7 +359,7 @@ function Profile() {
                                 </>
                             ) : (
                                 <>
-                                    <button className="profile-btn">Follow</button>
+                                    <button className="follow-btn">Follow</button>
                                     <button className="icon-btn">•••</button>
                                 </>
                             )}
@@ -357,7 +369,9 @@ function Profile() {
 
                         {/* STATS ROW */}
                         <div className="profile-stats">
-                            <span><strong>{currentPosts.length}</strong> posts</span>
+                            <span><strong>
+                                    {isVisitingUser ? viewPostsCount : currentPosts.length}
+                                </strong> posts</span>
                             <span><strong>0</strong> followers</span>
                             <span><strong>0</strong> following</span>
                         </div>
@@ -404,7 +418,7 @@ function Profile() {
                             <h3>This account is private</h3>
                             <p>Follow to see their photos and videos.</p>
 
-                            <button className="profile-btn">Follow</button>
+                            <button className="follow-btn">Follow</button>
                         </div>
                     ) : (
                         <div className="posts-grid">
