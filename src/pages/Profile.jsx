@@ -48,6 +48,12 @@ function Profile() {
     const [viewPosts, setViewPosts] = useState([]);
     const [viewPostsLoading, setViewPostsLoading] = useState(false);
     const [viewPostsCount, setViewPostsCount] = useState(0);
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [isFollowedBy, setIsFollowedBy] = useState(false);
+    const [followLoading, setFollowLoading] = useState(false);
+    const [showUnfollowModal, setShowUnfollowModal] = useState(false);
+    const [followersCount, setFollowersCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
     const currentProfile = isVisitingUser ? viewProfile : profile;
     const currentPosts = isVisitingUser ? viewPosts : cachedPosts;
     const finalAvatarUrl = isVisitingUser ? currentProfile?.avatar_url : avatarUrl;
@@ -126,8 +132,79 @@ function Profile() {
         setPostsLoading(false);
     }, [user, setCachedPosts, setPostsFetched]);
 
+    const handleFollow = async () => {
+        if (!user || !viewProfile) return;
+
+        setFollowLoading(true);
+
+        const { error } = await supabase
+            .from("follows")
+            .insert([
+                {
+                    follower_id: user.id,
+                    following_id: viewProfile.id
+                }
+            ]);
+
+        if (error) {
+            console.log("Follow error:", error.message);
+        } else {
+            setIsFollowing(true); // instantly update UI
+        }
+
+        setFollowLoading(false);
+    };
+
+    const handleUnfollow = async () => {
+        if (!user || !viewProfile) return;
+
+        setFollowLoading(true);
+
+        const { error } = await supabase
+            .from("follows")
+            .delete()
+            .eq("follower_id", user.id)
+            .eq("following_id", viewProfile.id);
+
+        if (error) {
+            console.log("Unfollow error:", error.message);
+        } else {
+            setIsFollowing(false);
+            setShowUnfollowModal(false);
+        }
+
+        setFollowLoading(false);
+    };
 
 
+    useEffect(() => {
+        if (!isVisitingUser) return;
+        if (!user || !viewProfile) return;
+
+        const checkFollowStatus = async () => {
+            // am I following them?
+            const { data: followingData } = await supabase
+                .from("follows")
+                .select("id")
+                .eq("follower_id", user.id)
+                .eq("following_id", viewProfile.id)
+                .maybeSingle();
+
+            setIsFollowing(!!followingData);
+
+            // are they following me?
+            const { data: followedByData } = await supabase
+                .from("follows")
+                .select("id")
+                .eq("follower_id", viewProfile.id)
+                .eq("following_id", user.id)
+                .maybeSingle();
+
+            setIsFollowedBy(!!followedByData);
+        };
+
+        checkFollowStatus();
+    }, [isVisitingUser, user, viewProfile]);
 
     useEffect(() => {
         if (!loading && !user && !isVisitingUser) {
@@ -140,6 +217,28 @@ function Profile() {
     }, [username]);
 
 
+    useEffect(() => {
+        if (!currentProfile) return;
+
+        const fetchFollowCounts = async () => {
+            // followers = people who follow this profile
+            const { count: followers, error: followersError } = await supabase
+                .from("follows")
+                .select("id", { count: "exact", head: true })
+                .eq("following_id", currentProfile.id);
+
+            // following = people this profile follows
+            const { count: following, error: followingError } = await supabase
+                .from("follows")
+                .select("id", { count: "exact", head: true })
+                .eq("follower_id", currentProfile.id);
+
+            if (!followersError) setFollowersCount(followers || 0);
+            if (!followingError) setFollowingCount(following || 0);
+        };
+
+        fetchFollowCounts();
+    }, [currentProfile]);
 
     useEffect(() => {
         if (!isVisitingUser) return;
@@ -359,7 +458,23 @@ function Profile() {
                                 </>
                             ) : (
                                 <>
-                                    <button className="follow-btn">Follow</button>
+                                    {isFollowing ? (
+                                        <button
+                                            className="profile-btn secondary"
+                                            onClick={() => setShowUnfollowModal(true)}
+                                            disabled={followLoading}
+                                        >
+                                            {followLoading ? "..." : "Following"}
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="follow-btn"
+                                            onClick={handleFollow}
+                                            disabled={followLoading}
+                                        >
+                                            {followLoading ? "..." : (isFollowedBy ? "Follow Back" : "Follow")}
+                                        </button>
+                                    )}
                                     <button className="icon-btn">•••</button>
                                 </>
                             )}
@@ -370,10 +485,10 @@ function Profile() {
                         {/* STATS ROW */}
                         <div className="profile-stats">
                             <span><strong>
-                                    {isVisitingUser ? viewPostsCount : currentPosts.length}
-                                </strong> posts</span>
-                            <span><strong>0</strong> followers</span>
-                            <span><strong>0</strong> following</span>
+                                {isVisitingUser ? viewPostsCount : currentPosts.length}
+                            </strong> posts</span>
+                            <span><strong>{followersCount}</strong> followers</span>
+                            <span><strong>{followingCount}</strong> following</span>
                         </div>
 
                         {/* NAME */}
@@ -418,7 +533,23 @@ function Profile() {
                             <h3>This account is private</h3>
                             <p>Follow to see their photos and videos.</p>
 
-                            <button className="follow-btn">Follow</button>
+                            {isFollowing ? (
+                                <button
+                                    className="profile-btn secondary"
+                                    onClick={() => setShowUnfollowModal(true)}
+                                    disabled={followLoading}
+                                >
+                                    {followLoading ? "..." : "Following"}
+                                </button>
+                            ) : (
+                                <button
+                                    className="follow-btn"
+                                    onClick={handleFollow}
+                                    disabled={followLoading}
+                                >
+                                    {followLoading ? "..." : (isFollowedBy ? "Follow Back" : "Follow")}
+                                </button>
+                            )}
                         </div>
                     ) : (
                         <div className="posts-grid">
@@ -586,6 +717,36 @@ function Profile() {
                     </div>
                 )}
 
+                {showUnfollowModal && (
+                    <div
+                        className="modal-overlay"
+                        onClick={() => setShowUnfollowModal(false)}
+                    >
+                        <div
+                            className="photo-modal"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div
+                                className="modal-item action remove"
+                                onClick={async () => {
+                                    await handleUnfollow();
+                                    setShowUnfollowModal(false);
+                                }}
+                            >
+                                Unfollow
+                            </div>
+
+                            <div className="modal-divider"></div>
+
+                            <div
+                                className="modal-item cancel"
+                                onClick={() => setShowUnfollowModal(false)}
+                            >
+                                Cancel
+                            </div>
+                        </div>
+                    </div>
+                )}
 
             </main>
 
