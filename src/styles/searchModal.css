@@ -138,3 +138,127 @@
   font-size: 13px;
   opacity: 0.7;
 }
+
+.default-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ddd;
+    color: #555;
+    font-size: 16px;
+}
+
+.recent-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recent-delete {
+    opacity: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.recent-row:hover .recent-delete {
+    opacity: 1;
+}
+
+.clear-recent {
+    font-size: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+/* Row container */
+.recent-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+}
+
+/* Left clickable area */
+.recent-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    cursor: pointer;
+}
+
+/* Avatar */
+.search-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Info column */
+.search-user-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Username bold */
+.search-user-username {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Full name smaller */
+.search-user-fullname {
+    font-size: 13px;
+    color: #8e8e8e;
+}
+
+/* Delete button */
+.recent-delete {
+    opacity: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    color: #b3b3b3;
+}
+
+/* Show on row hover */
+.recent-row:hover .recent-delete {
+    opacity: 1;
+}
+
+/* Dark gray hover */
+.recent-delete:hover {
+    background-color: #2a2a2a;
+    color: #8e8e8e;
+}
+
+.search-recent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    font-weight: 600;
+}
+
+/* Blue Clear Button */
+.clear-recent {
+    background: none;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0095f6;
+    cursor: pointer;
+    padding: 4px 6px;
+    transition: color 0.2s ease;
+}
+
+/* Slight darker blue on hover */
+.clear-recent:hover {
+    color: #1877f2;
+}

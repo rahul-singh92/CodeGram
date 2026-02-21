@@ -57,6 +57,9 @@ function Profile() {
     const currentProfile = isVisitingUser ? viewProfile : profile;
     const currentPosts = isVisitingUser ? viewPosts : cachedPosts;
     const finalAvatarUrl = isVisitingUser ? currentProfile?.avatar_url : avatarUrl;
+    const canViewPrivatePosts = !isVisitingUser || !currentProfile?.is_private || (isFollowing && isFollowedBy);
+
+
     const navigate = useNavigate();
 
     const { uploadAvatar, removeAvatar } = useAvatarUpload(
@@ -279,7 +282,7 @@ function Profile() {
 
         fetchPostCount();
 
-        if (viewProfile.is_private) {
+        if (viewProfile.is_private && !(isFollowing && isFollowedBy)) {
             setViewPosts([]);
             setViewPostsLoading(false);
             return;
@@ -345,7 +348,7 @@ function Profile() {
         };
 
         fetchVisitedPosts();
-    }, [viewProfile, isVisitingUser, user]);
+    }, [viewProfile, isVisitingUser, user, isFollowing, isFollowedBy]);
 
     useEffect(() => {
         if (!isVisitingUser) {
@@ -514,7 +517,7 @@ function Profile() {
                 {/* POSTS GRID */}
                 <div className="profile-posts-section">
 
-                    {isVisitingUser && currentProfile.is_private ? (
+                    {isVisitingUser && currentProfile.is_private && !canViewPrivatePosts ? (
                         <div className="private-account-box">
 
                             {/* LOCK ICON IN CIRCLE */}
@@ -614,7 +617,7 @@ function Profile() {
                     />
                 )}
 
-                {!(isVisitingUser && currentProfile.is_private) && (
+                {canViewPrivatePosts && (
                     <PostViewerModal
                         open={!!selectedPost}
                         onClose={() => setSelectedPost(null)}
